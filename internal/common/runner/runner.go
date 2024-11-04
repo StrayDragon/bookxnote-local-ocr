@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/straydragon/bookxnote-local-ocr/internal/settings"
+	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
 )
 
 func RunWithDebuggingTLSConfig(r *gin.Engine) {

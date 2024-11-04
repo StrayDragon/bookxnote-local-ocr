@@ -39,3 +39,27 @@
 - 检查是否已安装并信任自签发的根证书
 - 检查 OCR 服务 (如 UmiOCR) 是否正常运行
 - 如果以上都没有问题, 请重启 BookXNote , OCR 服务和本服务重试
+
+## 2. 配置文件查找顺序?
+
+程序支持通过配置文件自定义设置。配置文件使用YAML格式, 如
+
+```yaml
+ocr:
+  umiocr:
+    api_url: http://127.0.0.1:1224  # UmiOCR服务地址
+```
+
+配置文件位置（按优先级排序）：
+
+### Linux
+1. ~/.local/share/bookxnote-local-ocr/config.yml
+2. ~/.config/bookxnote-local-ocr/config.yml
+
+### macOS
+1. ~/Library/Application Support/bookxnote-local-ocr/config.yml
+
+### Windows
+1. %APPDATA%/bookxnote-local-ocr/config.yml
+
+所有平台都支持在项目目录下的 config/config.yml 作为默认配置。
