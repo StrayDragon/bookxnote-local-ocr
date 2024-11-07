@@ -27,8 +27,9 @@ build:
 prepare: build
 	@echo "prepare..."
 	@cp README.md LICENSE $(BUILD_OUTPUT_DIR)/
-	@cp -r docs $(BUILD_OUTPUT_DIR)/
-	@cp config/config.example.yml $(BUILD_OUTPUT_DIR)/
+	@mkdir -p $(BUILD_OUTPUT_DIR)/docs
+	@cp docs/tutorial.md $(BUILD_OUTPUT_DIR)/docs/tutorial.md
+	@cp config.yml $(BUILD_OUTPUT_DIR)/
 
 package: prepare
 	@echo "packaging..."

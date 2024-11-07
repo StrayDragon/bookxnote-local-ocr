@@ -70,7 +70,9 @@ ocr:
 
 配置文件位置（按优先级排序）：
 
-### Linux
+0. 可执行程序所在目录
+
+<!-- ### Linux
 1. ~/.local/share/bookxnote-local-ocr/config.yml
 2. ~/.config/bookxnote-local-ocr/config.yml
 
@@ -78,6 +80,6 @@ ocr:
 1. ~/Library/Application Support/bookxnote-local-ocr/config.yml
 
 ### Windows
-1. %APPDATA%/bookxnote-local-ocr/config.yml
+1. %APPDATA%/bookxnote-local-ocr/config.yml -->
 
 查看 [config/config.yml](../config/config.yml) 获取更多默认配置信息
