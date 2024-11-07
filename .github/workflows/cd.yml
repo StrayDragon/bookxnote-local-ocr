@@ -22,12 +22,12 @@ jobs:
           - goos: windows
             goarch: amd64
             suffix: ".exe"
-          - goos: darwin
-            goarch: amd64
-            suffix: ""
-          - goos: darwin
-            goarch: arm64
-            suffix: ""
+          # - goos: darwin
+          #   goarch: amd64
+          #   suffix: ""
+          # - goos: darwin
+          #   goarch: arm64
+          #   suffix: ""
 
     steps:
       - name: Checkout code
