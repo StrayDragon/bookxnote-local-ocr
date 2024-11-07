@@ -2,11 +2,9 @@ package service
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
-	"runtime"
 
 	"github.com/spf13/viper"
+	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
 )
 
 type ConfigOCRUmiOCR struct {
@@ -38,20 +36,10 @@ func LoadConfig() (*Config, error) {
 	// 配置默认值
 	v.SetDefault("ocr.umiocr.api_url", DefaultConfig.OCR.UmiOCR.APIURL)
 
-	// 平台优先级获取配置信息
-	home, err := os.UserHomeDir()
-	if err == nil {
-		switch runtime.GOOS {
-		case "linux":
-			v.AddConfigPath(filepath.Join(home, ".config/bookxnote-local-ocr"))
-			v.AddConfigPath(filepath.Join(home, ".local/share/bookxnote-local-ocr"))
-		case "darwin":
-			v.AddConfigPath(filepath.Join(home, "Library/Application Support/bookxnote-local-ocr"))
-		case "windows":
-			v.AddConfigPath(filepath.Join(os.Getenv("APPDATA"), "bookxnote-local-ocr"))
-		}
+	// 添加配置文件搜索路径
+	for _, dir := range settings.GetUserConfigDirs() {
+		v.AddConfigPath(dir)
 	}
-	v.AddConfigPath("config")
 
 	// 读取配置文件
 	if err := v.ReadInConfig(); err != nil {
@@ -59,6 +47,7 @@ func LoadConfig() (*Config, error) {
 			return nil, fmt.Errorf("读取配置文件失败: %w", err)
 		}
 	}
+
 	var config Config
 	if err := v.Unmarshal(&config); err != nil {
 		return nil, fmt.Errorf("解析配置失败: %w", err)
