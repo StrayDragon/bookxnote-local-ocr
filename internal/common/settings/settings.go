@@ -3,34 +3,37 @@ package settings
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 )
 
 // GetUserConfigDirs 返回用户配置目录列表，按优先级排序
 func GetUserConfigDirs() []string {
 	var dirs []string
 
-	home, err := os.UserHomeDir()
+	// 获取当前可执行程序运行目录
+	execDir, err := os.Executable()
 	if err == nil {
-		switch runtime.GOOS {
-		case "linux":
-			dirs = append(dirs,
-				filepath.Join(home, ".config/bookxnote-local-ocr"),
-				filepath.Join(home, ".local/share/bookxnote-local-ocr"),
-			)
-		case "darwin":
-			dirs = append(dirs,
-				filepath.Join(home, "Library/Application Support/bookxnote-local-ocr"),
-			)
-		case "windows":
-			if appData := os.Getenv("APPDATA"); appData != "" {
-				dirs = append(dirs, filepath.Join(appData, "bookxnote-local-ocr"))
-			}
-		}
+		dirs = append(dirs, filepath.Dir(execDir))
 	}
 
-	// 添加项目目录作为最后的备选
-	dirs = append(dirs, "config")
+	// 获取用户主目录
+	// home, err := os.UserHomeDir()
+	// if err == nil {
+	// 	switch runtime.GOOS {
+	// 	case "linux":
+	// 		dirs = append(dirs,
+	// 			filepath.Join(home, ".config/bookxnote-local-ocr"),
+	// 			filepath.Join(home, ".local/share/bookxnote-local-ocr"),
+	// 		)
+	// 	case "darwin":
+	// 		dirs = append(dirs,
+	// 			filepath.Join(home, "Library/Application Support/bookxnote-local-ocr"),
+	// 		)
+	// 	case "windows":
+	// 		if appData := os.Getenv("APPDATA"); appData != "" {
+	// 			dirs = append(dirs, filepath.Join(appData, "bookxnote-local-ocr"))
+	// 		}
+	// 	}
+	// }
 
 	return dirs
 }
