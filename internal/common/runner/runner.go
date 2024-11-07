@@ -37,9 +37,11 @@ func RunWithDebuggingTLSConfig(r *gin.Engine) {
 	}
 
 	// 加载证书链
+	chainKeyCertPaths := settings.GetPathsFromCertDir("chain.pem", "key.pem", "cert.pem")
+	chainPath, keyPath, certPath := chainKeyCertPaths[0], chainKeyCertPaths[1], chainKeyCertPaths[2]
 	cert, err := tls.LoadX509KeyPair(
-		settings.GetPathFromCertDir("chain.pem"),
-		settings.GetPathFromCertDir("key.pem"),
+		chainPath,
+		keyPath,
 	)
 	if err != nil {
 		log.Fatalf("Failed to load certificate chain: %v", err)
@@ -75,8 +77,8 @@ func RunWithDebuggingTLSConfig(r *gin.Engine) {
 
 	log.Printf("Starting server on :443...")
 	if err := server.ListenAndServeTLS(
-		settings.GetPathFromCertDir("cert.pem"),
-		settings.GetPathFromCertDir("key.pem"),
+		certPath,
+		keyPath,
 	); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}

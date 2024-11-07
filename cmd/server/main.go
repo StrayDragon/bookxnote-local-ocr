@@ -36,5 +36,6 @@ func main() {
 	r.NoRoute(handlers.CatchAllHandler)
 
 	// 启动服务器
-	r.RunTLS(":443", settings.GetPathFromCertDir("cert.pem"), settings.GetPathFromCertDir("key.pem"))
+	certPaths := settings.GetPathsFromCertDir("cert.pem", "key.pem")
+	r.RunTLS(":443", certPaths[0], certPaths[1])
 }
