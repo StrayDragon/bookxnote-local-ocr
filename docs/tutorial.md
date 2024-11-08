@@ -5,7 +5,7 @@
 > [!warning]
 > 需要完成 [#前置准备](#前置准备)
 
-到 Release 页面下载对应平台的压缩包, 解压后使用命令行/终端运行, 以下命令查看更多帮助
+到 [Release 页面](https://github.com/StrayDragon/bookxnote-local-ocr/releases)下载对应平台的压缩包, 解压后使用命令行/终端运行, 以下命令查看更多帮助
 ```
 ./bookxnote-local-ocr -h # 或 Windows 上 .\bookxnote-local-ocr.exe -h
 ```
@@ -38,13 +38,11 @@ sudo ./bookxnote-local-ocr server
 使用步骤：
 1. 首次使用双击运行`install.bat`，按提示操作
 2. 每次需要使用OCR时，双击运行`start.bat`，保持窗口开启
-3. 如果不再使用，双击运行`uninstall.bat`清理配置
 
 也可以使用命令行方式运行, 需要管理员权限
 ```powershell
 .\bookxnote-local-ocr.exe install  # 首次安装
 .\bookxnote-local-ocr.exe server   # 启动服务
-.\bookxnote-local-ocr.exe uninstall # 卸载
 ```
 
 打开 BookXNote, 在右上角选项-文字识别中(需要高级用户)随意配置 API Key 和 Secret Key, 点击应用后检查输出是否为 "应用OCR成功"
@@ -61,6 +59,8 @@ sudo ./bookxnote-local-ocr uninstall
 ```
 
 ## Windows
+如果不再使用，双击运行`uninstall.bat`清理配置 或使用管理员权限打开powershell运行以下命令
+
 ```powershell
 .\bookxnote-local-ocr.exe uninstall
 ```
