@@ -21,7 +21,7 @@ sudo ./bookxnote-local-ocr install
 
 之后仅需要在使用BookxNote OCR功能时, 运行该命令, 保持终端存在, 不要关闭
 ```sh
-./bookxnote-local-ocr server
+sudo ./bookxnote-local-ocr server
 ```
 
 ## Windows
