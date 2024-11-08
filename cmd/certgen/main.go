@@ -45,7 +45,15 @@ func main() {
 
 	certDir := settings.GetCertDir()
 	if err := os.MkdirAll(certDir, 0755); err != nil {
-		log.Fatalf("创建证书目录失败: %v", err)
+		log.Fatalf("创建证书目录失败 > %v", err)
+	}
+
+	if *forceRegen && *clean {
+		log.Fatal("无法同时使用 -force 和 -clean 参数")
+	}
+
+	if *forceRegen {
+		*clean = true
 	}
 
 	if *clean {
@@ -53,7 +61,7 @@ func main() {
 		if _, err := os.Stat(rootCertPath); err == nil {
 			if rootCert, err := loadRootCertFromFile(rootCertPath); err == nil {
 				if err := cert.UninstallRootCert(rootCert); err != nil {
-					log.Printf("卸载根证书失败: %v", err)
+					log.Printf("卸载根证书失败 > %v", err)
 				} else {
 					log.Println("已卸载根证书")
 				}
@@ -64,11 +72,13 @@ func main() {
 		for _, file := range files {
 			path := filepath.Join(certDir, file)
 			if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
-				log.Printf("清理证书文件失败 %s: %v", path, err)
+				log.Printf("清理证书文件失败 %s > %v", path, err)
 			}
 		}
 		log.Println("证书文件已清理")
-		return
+		if !*forceRegen {
+			return
+		}
 	}
 
 	if certificatesExist(certDir) && !*forceRegen {
@@ -97,28 +107,28 @@ func main() {
 	// 生成根证书+服务器证书
 	rootCert, rootKey, err := cert.GenerateRootCA(config)
 	if err != nil {
-		log.Fatalf("生成根证书失败: %v", err)
+		log.Fatalf("生成根证书失败 > %v", err)
 	}
 	serverCert, serverKey, err := cert.GenerateServerCert(config, rootCert, rootKey)
 	if err != nil {
-		log.Fatalf("生成服务器证书失败: %v", err)
+		log.Fatalf("生成服务器证书失败 > %v", err)
 	}
 
 	// 保存到用户配置中一份儿 方便管理
 	if err := cert.SaveCertAndKey(rootCert, rootKey,
 		filepath.Join(certDir, "rootCA.pem"),
 		filepath.Join(certDir, "rootCA.key")); err != nil {
-		log.Fatalf("保存根证书失败: %v", err)
+		log.Fatalf("保存根证书失败 > %v", err)
 	}
 	if err := cert.SaveCertAndKey(serverCert, serverKey,
 		filepath.Join(certDir, "cert.pem"),
 		filepath.Join(certDir, "key.pem")); err != nil {
-		log.Fatalf("保存服务器证书失败: %v", err)
+		log.Fatalf("保存服务器证书失败 > %v", err)
 	}
 
 	// 安装并信任根证书
 	if err := cert.InstallRootCert(rootCert); err != nil {
-		log.Fatalf("安装根证书失败: %v", err)
+		log.Fatalf("安装根证书失败 > %v", err)
 	}
 
 	log.Println("证书生成和安装完成")
