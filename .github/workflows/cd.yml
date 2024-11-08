@@ -61,7 +61,7 @@ jobs:
         run: |
           template=$(cat .github/release-template.md)
           echo "content<<EOF" >> $GITHUB_OUTPUT
-          echo "${template/\${VERSION}/${{ github.ref_name }}}" >> $GITHUB_OUTPUT
+          echo "${template/-VERSION-/${{ github.ref_name }}}" >> $GITHUB_OUTPUT
           echo "${{ steps.github_release.outputs.changelog }}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
