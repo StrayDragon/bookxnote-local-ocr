@@ -31,7 +31,7 @@ type CertConfig struct {
 func GenerateRootCA(config CertConfig) (*x509.Certificate, *rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
-		return nil, nil, fmt.Errorf("生成私钥失败: %v", err)
+		return nil, nil, fmt.Errorf("生成私钥失败 > %v", err)
 	}
 
 	template := &x509.Certificate{
@@ -58,12 +58,12 @@ func GenerateRootCA(config CertConfig) (*x509.Certificate, *rsa.PrivateKey, erro
 		privateKey,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("生成根证书失败: %v", err) // 自签名根证书
+		return nil, nil, fmt.Errorf("生成根证书失败 > %v", err) // 自签名根证书
 	}
 
 	cert, err := x509.ParseCertificate(derBytes)
 	if err != nil {
-		return nil, nil, fmt.Errorf("解析证书失败: %v", err)
+		return nil, nil, fmt.Errorf("解析证书失败 > %v", err)
 	}
 
 	return cert, privateKey, nil
@@ -73,7 +73,7 @@ func GenerateRootCA(config CertConfig) (*x509.Certificate, *rsa.PrivateKey, erro
 func GenerateServerCert(config CertConfig, rootCA *x509.Certificate, rootKey *rsa.PrivateKey) (*x509.Certificate, *rsa.PrivateKey, error) {
 	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
-		return nil, nil, fmt.Errorf("生成私钥失败: %v", err)
+		return nil, nil, fmt.Errorf("生成私钥失败 > %v", err)
 	}
 
 	template := &x509.Certificate{
@@ -102,12 +102,12 @@ func GenerateServerCert(config CertConfig, rootCA *x509.Certificate, rootKey *rs
 		rootKey,
 	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("生成服务器证书失败: %v", err)
+		return nil, nil, fmt.Errorf("生成服务器证书失败 > %v", err)
 	}
 
 	cert, err := x509.ParseCertificate(derBytes)
 	if err != nil {
-		return nil, nil, fmt.Errorf("解析证书失败: %v", err)
+		return nil, nil, fmt.Errorf("解析证书失败 > %v", err)
 	}
 
 	return cert, privateKey, nil
@@ -116,22 +116,22 @@ func GenerateServerCert(config CertConfig, rootCA *x509.Certificate, rootKey *rs
 // SaveCertAndKey 保存证书和私钥到文件
 func SaveCertAndKey(cert *x509.Certificate, key *rsa.PrivateKey, certPath, keyPath string) error {
 	if err := os.MkdirAll(filepath.Dir(certPath), 0755); err != nil {
-		return fmt.Errorf("创建证书目录失败: %v", err)
+		return fmt.Errorf("创建证书目录失败 > %v", err)
 	}
 
 	certOut, err := os.Create(certPath)
 	if err != nil {
-		return fmt.Errorf("创建证书文件失败: %v", err)
+		return fmt.Errorf("创建证书文件失败 > %v", err)
 	}
 	defer certOut.Close()
 
 	if err := pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: cert.Raw}); err != nil {
-		return fmt.Errorf("写入证书失败: %v", err)
+		return fmt.Errorf("写入证书失败 > %v", err)
 	}
 
 	keyOut, err := os.Create(keyPath)
 	if err != nil {
-		return fmt.Errorf("创建私钥文件失败: %v", err)
+		return fmt.Errorf("创建私钥文件失败 > %v", err)
 	}
 	defer keyOut.Close()
 
@@ -139,7 +139,7 @@ func SaveCertAndKey(cert *x509.Certificate, key *rsa.PrivateKey, certPath, keyPa
 		Type:  "RSA PRIVATE KEY",
 		Bytes: x509.MarshalPKCS1PrivateKey(key),
 	}); err != nil {
-		return fmt.Errorf("写入私钥失败: %v", err)
+		return fmt.Errorf("写入私钥失败 > %v", err)
 	}
 
 	return nil
@@ -149,7 +149,7 @@ func SaveCertAndKey(cert *x509.Certificate, key *rsa.PrivateKey, certPath, keyPa
 func InstallRootCert(rootCert *x509.Certificate) error {
 	err := truststore.Install(rootCert)
 	if err != nil {
-		return fmt.Errorf("安装根证书失败: %v", err)
+		return fmt.Errorf("安装根证书失败 > %v", err)
 	}
 	return nil
 }
