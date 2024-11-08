@@ -46,6 +46,13 @@ jobs:
         run: |
           make package
 
+      - name: Build Changelog
+        if: startsWith(github.ref, 'refs/tags/')
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Load Release Template
         if: startsWith(github.ref, 'refs/tags/')
         id: release_template
@@ -53,6 +60,7 @@ jobs:
           template=$(cat .github/release-template.md)
           echo "content<<EOF" >> $GITHUB_OUTPUT
           echo "${template/\${VERSION}/${{ github.ref_name }}}" >> $GITHUB_OUTPUT
+          echo "${{ steps.github_release.outputs.changelog }}" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create Release
