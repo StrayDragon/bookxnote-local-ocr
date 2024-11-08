@@ -1,38 +1,70 @@
 # 前置准备
-- 配置 hosts 文件, 劫持 BookXNote 的 OCR 请求, 添加以下内容到, **之后如果不使用了, 记得移除以上配置, 并调用相关清理卸载命令, 以免影响正常使用**
-  - Linux/macOS: /etc/hosts
-  - Windows: C:\Windows\System32\drivers\etc\hosts
-  ```
-  # BookXNote Pro OCR
-  127.0.0.1        aip.baidubce.com
-  ```
-- 下载并安装 [UmiOCR](https://github.com/hiroi-sora/Umi-OCR), 配置 http 服务打开, 运行该应用保持在后台
+- 下载并安装 [UmiOCR](https://github.com/hiroi-sora/Umi-OCR), 解压并运行该程序, 运行该应用保持在后台
 
 # 安装使用
 > [!warning]
 > 需要完成 [#前置准备](#前置准备)
 
-到 Release 页面下载对应平台的压缩包, 解压后使用命令行/终端运行
+到 Release 页面下载对应平台的压缩包, 解压后使用命令行/终端运行, 以下命令查看更多帮助
+```
+./bookxnote-local-ocr -h # 或 Windows 上 .\bookxnote-local-ocr.exe -h
+```
+
+以下命令均需要在解压后的程序根目录下运行!
 
 ## Linux/macOS
+
+首次运行需要调用该命令, 查看运行提示操作
+```sh
+sudo ./bookxnote-local-ocr install
+```
+
+之后仅需要在使用BookxNote OCR功能时, 运行该命令, 保持终端存在, 不要关闭
 ```sh
 ./bookxnote-local-ocr server
 ```
 
 ## Windows
+
+解压后会看到以下文件：
+- `install.bat` - 首次使用双击运行，用于安装证书和配置hosts
+- `start.bat` - 每次使用OCR功能时双击运行，保持窗口开启
+- `uninstall.bat` - 不再使用时双击运行，清理证书和hosts配置
+
+> [!note]
+> - 以上.bat文件都需要管理员权限，Windows会弹出UAC权限请求，请选择"是"
+> - 运行时请保持窗口开启
+
+使用步骤：
+1. 首次使用双击运行`install.bat`，按提示操作
+2. 每次需要使用OCR时，双击运行`start.bat`，保持窗口开启
+3. 如果不再使用，双击运行`uninstall.bat`清理配置
+
+也可以使用命令行方式运行, 需要管理员权限
 ```powershell
-.\bookxnote-local-ocr.exe server
-```
-
-
-将自动配置证书并启动服务器, 以下命令查看更多帮助
-```
-bookxnote-local-ocr -h
+.\bookxnote-local-ocr.exe install  # 首次安装
+.\bookxnote-local-ocr.exe server   # 启动服务
+.\bookxnote-local-ocr.exe uninstall # 卸载
 ```
 
 打开 BookXNote, 在右上角选项-文字识别中(需要高级用户)随意配置 API Key 和 Secret Key, 点击应用后检查输出是否为 "应用OCR成功"
 
 如果成功, 则可以正常使用 OCR 功能, 否则参考 [#QA](#QA) 排查问题
+
+# 卸载
+
+在解压后的目录中运行以下命令
+
+## Linux/macOS
+```
+sudo ./bookxnote-local-ocr uninstall
+```
+
+## Windows
+```powershell
+.\bookxnote-local-ocr.exe uninstall
+```
+后手动删除安装目录
 
 # 本地开发运行
 ## Linux
@@ -82,4 +114,4 @@ ocr:
 ### Windows
 1. %APPDATA%/bookxnote-local-ocr/config.yml -->
 
-查看 [config/config.yml](../config/config.yml) 获取更多默认配置信息
+查看 [config.yml](../artifact/config.yml) 获取更多默认配置信息

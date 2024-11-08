@@ -29,7 +29,10 @@ prepare: build
 	@cp README.md LICENSE $(BUILD_OUTPUT_DIR)/
 	@mkdir -p $(BUILD_OUTPUT_DIR)/docs
 	@cp docs/tutorial.md $(BUILD_OUTPUT_DIR)/docs/tutorial.md
-	@cp config.yml $(BUILD_OUTPUT_DIR)/
+	@cp artifact/config.yml $(BUILD_OUTPUT_DIR)/
+	@if [ "$(GOOS)" = "windows" ]; then \
+		cp artifact/windows/*.bat $(BUILD_OUTPUT_DIR)/; \
+	fi
 
 package: prepare
 	@echo "packaging..."
