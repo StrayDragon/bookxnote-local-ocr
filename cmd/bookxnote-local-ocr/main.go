@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/areYouLazy/libhosty"
@@ -253,7 +254,25 @@ func (app *App) runUninstall() error {
 	return nil
 }
 
+func checkAdminPrivileges() error {
+	if runtime.GOOS == "windows" {
+		cmd := exec.Command("net", "session")
+		if err := cmd.Run(); err != nil {
+			return fmt.Errorf("需要管理员权限运行! 请右键点击程序，选择「以管理员身份运行」")
+		}
+	} else if runtime.GOOS == "linux" {
+		if os.Geteuid() != 0 {
+			return fmt.Errorf("需要root权限运行! 请使用 sudo 运行此程序")
+		}
+	}
+	return nil
+}
+
 func (app *App) Run() error {
+	if err := checkAdminPrivileges(); err != nil {
+		return err
+	}
+
 	if len(os.Args) < 2 {
 		app.printUsage()
 		return nil
