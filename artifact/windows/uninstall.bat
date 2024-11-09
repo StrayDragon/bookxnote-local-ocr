@@ -1,4 +1,5 @@
 @echo off
-echo 姝ｅ湪鍗歌浇閰嶇疆...
-powershell -Command "Start-Process -Verb RunAs cmd -ArgumentList '/c cd /d %~dp0 && bookxnote-local-ocr.exe uninstall'"
+echo 正在卸载配置(请以管理员身份运行)...
+cd /d %~dp0
+bookxnote-local-ocr.exe uninstall
 pause
