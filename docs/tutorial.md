@@ -27,17 +27,16 @@ sudo ./bookxnote-local-ocr server
 ## Windows
 
 解压后会看到以下文件：
-- `install.bat` - 首次使用双击运行，用于安装证书和配置hosts
-- `start.bat` - 每次使用OCR功能时双击运行，保持窗口开启
-- `uninstall.bat` - 不再使用时双击运行，清理证书和hosts配置
+- `install.bat` - 用于安装证书和配置hosts
+- `start.bat` - 每次使用OCR功能时运行, 保持窗口开启
+- `uninstall.bat` - 清理证书和hosts配置
 
 > [!note]
-> - 以上.bat文件都需要管理员权限，Windows会弹出UAC权限请求，请选择"是"
-> - 运行时请保持窗口开启
+> - 以上.bat文件都需要管理员权限, 请用管理员权限打开(右键找到以管理员身份运行)
 
 使用步骤：
-1. 首次使用双击运行`install.bat`，按提示操作
-2. 每次需要使用OCR时，双击运行`start.bat`，保持窗口开启
+1. 首次使用时需要运行一次, 使用管理员权限运行`install.bat`, 按提示操作
+2. 每次需要使用OCR时, 使用管理员权限运行`start.bat`, 保持窗口开启
 
 也可以使用命令行方式运行, 需要管理员权限
 ```powershell
@@ -59,7 +58,7 @@ sudo ./bookxnote-local-ocr uninstall
 ```
 
 ## Windows
-如果不再使用，双击运行`uninstall.bat`清理配置 或使用管理员权限打开powershell运行以下命令
+如果不再使用, 双击运行`uninstall.bat`清理配置 或使用管理员权限打开powershell运行以下命令
 
 ```powershell
 .\bookxnote-local-ocr.exe uninstall
