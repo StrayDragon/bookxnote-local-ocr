@@ -21,9 +21,11 @@ jobs:
           - goos: linux
             goarch: amd64
             suffix: ""
+            artifacts: "*.tar.gz"
           - goos: windows
             goarch: amd64
             suffix: ".exe"
+            artifacts: "*.zip"
           # - goos: darwin
           #   goarch: amd64
           #   suffix: ""
@@ -70,8 +72,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/*.zip
-            build/*.tar.gz
+            build/${{ matrix.artifacts }}
           body: ${{ steps.release_template.outputs.content }}
           append: true
 
@@ -80,5 +81,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binaries
-          path: build/*.{zip,tar.gz}
+          path: build/${{ matrix.artifacts }}
           retention-days: 5
