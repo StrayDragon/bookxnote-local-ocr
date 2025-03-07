@@ -12,16 +12,28 @@
 
 以下命令均需要在解压后的程序根目录下运行!
 
-## Linux/macOS
+## Linux
 
-首次运行需要调用该命令, 查看运行提示操作
+1. 下载并解压 tar.gz 文件
+2. 进入解压后的目录
+3. 运行配置权限脚本：
+   ```
+   chmod +x setup-privileges.sh
+   sudo ./setup-privileges.sh
+   ```
+4. 安装一些配置, 查看运行提示操作
 ```sh
-sudo ./bookxnote-local-ocr install
+./bookxnote-local-ocr install
 ```
 
 之后仅需要在使用BookxNote OCR功能时, 运行该命令, 保持终端存在, 不要关闭
 ```sh
-sudo ./bookxnote-local-ocr server
+./bookxnote-local-ocr server
+```
+
+可以使用GUI程序(功能和Cli一致, 但是可以托盘管理)
+```sh
+./bookxnote-local-ocr gui
 ```
 
 ## Windows
@@ -52,7 +64,7 @@ sudo ./bookxnote-local-ocr server
 
 在解压后的目录中运行以下命令
 
-## Linux/macOS
+## Linux
 ```
 sudo ./bookxnote-local-ocr uninstall
 ```
@@ -106,9 +118,6 @@ ocr:
 <!-- ### Linux
 1. ~/.local/share/bookxnote-local-ocr/config.yml
 2. ~/.config/bookxnote-local-ocr/config.yml
-
-### macOS
-1. ~/Library/Application Support/bookxnote-local-ocr/config.yml
 
 ### Windows
 1. %APPDATA%/bookxnote-local-ocr/config.yml -->
