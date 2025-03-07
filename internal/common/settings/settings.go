@@ -1,8 +1,9 @@
 package settings
 
 import (
-	"os"
 	"path/filepath"
+
+	"github.com/straydragon/bookxnote-local-ocr/internal/common/utils"
 )
 
 // GetUserConfigDirs 返回用户配置目录列表，按优先级排序
@@ -10,9 +11,9 @@ func GetUserConfigDirs() []string {
 	var dirs []string
 
 	// 获取当前可执行程序运行目录
-	execDir, err := os.Executable()
+	execDir, err := utils.GetExecDir()
 	if err == nil {
-		dirs = append(dirs, filepath.Dir(execDir))
+		dirs = append(dirs, execDir)
 	}
 
 	// 获取用户主目录

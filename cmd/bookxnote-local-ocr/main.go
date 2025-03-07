@@ -7,11 +7,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 
 	"github.com/areYouLazy/libhosty"
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
+	"github.com/straydragon/bookxnote-local-ocr/internal/common/utils"
 )
 
 const (
@@ -207,7 +207,7 @@ func (app *App) runInstall() error {
 		}
 	}
 
-	if !app.confirmAction("即将安装所有配置, 请确保使用管理员权限! 是否继续?") {
+	if !app.confirmAction("即将安装所有配置, 请确保使用管理员运行或设置过权限! 是否继续?") {
 		return fmt.Errorf("用户取消安装")
 	}
 
@@ -254,22 +254,8 @@ func (app *App) runUninstall() error {
 	return nil
 }
 
-func checkAdminPrivileges() error {
-	if runtime.GOOS == "windows" {
-		cmd := exec.Command("net", "session")
-		if err := cmd.Run(); err != nil {
-			return fmt.Errorf("需要管理员权限运行! 请右键点击程序，选择「以管理员身份运行」")
-		}
-	} else if runtime.GOOS == "linux" {
-		if os.Geteuid() != 0 {
-			return fmt.Errorf("需要root权限运行! 请使用 sudo 运行此程序")
-		}
-	}
-	return nil
-}
-
 func (app *App) Run() error {
-	if err := checkAdminPrivileges(); err != nil {
+	if err := utils.CheckAdminPrivileges(); err != nil {
 		return err
 	}
 
@@ -292,12 +278,19 @@ func (app *App) Run() error {
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "gui" {
+		if err := runGUI(); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
 	app, err := NewApp()
 	if err != nil {
-		log.Fatalf("初始化失败 > %v", err)
+		log.Fatal(err)
 	}
 
 	if err := app.Run(); err != nil {
-		log.Fatalf("运行失败 > %v", err)
+		log.Fatal(err)
 	}
 }

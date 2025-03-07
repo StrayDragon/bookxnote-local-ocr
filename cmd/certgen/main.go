@@ -9,9 +9,11 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/straydragon/bookxnote-local-ocr/internal/cert"
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
+	"github.com/straydragon/bookxnote-local-ocr/internal/common/utils"
 )
 
 func certificatesExist(certDir string) bool {
@@ -39,6 +41,12 @@ func loadRootCertFromFile(certPath string) (*x509.Certificate, error) {
 }
 
 func main() {
+	if runtime.GOOS == "linux" {
+		if err := utils.CheckCurrentProcessCaps([]string{"cap_dac_override", "cap_sys_admin"}); err != nil {
+			log.Fatalf("%v", err)
+		}
+	}
+
 	forceRegen := flag.Bool("force", false, "强制重新生成证书")
 	clean := flag.Bool("clean", false, "清理已生成的证书")
 	flag.Parse()
