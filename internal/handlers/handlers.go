@@ -70,6 +70,12 @@ func TokenHandler(c *gin.Context) {
 func AccurateOCRHandler(c *gin.Context) {
 	svc := GetService(c)
 
+	// NOTE: 测试 BookxNote OCR 设置的超时时间, 可能连接成功后header中就有timeout, 但是懒得抓包23333
+	// for i := 1; i <= 60; i++ {
+	// 	log.Printf("OCR识别中, 已进行 %d 秒", i)
+	// 	time.Sleep(1 * time.Second)
+	// }
+
 	var req APIAccurateOCRReq
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(400, ErrInvalidParamResp)
