@@ -11,8 +11,21 @@ import (
 	"github.com/straydragon/bookxnote-local-ocr/internal/lib/umiocr"
 	"github.com/straydragon/bookxnote-local-ocr/internal/middleware"
 	"github.com/straydragon/bookxnote-local-ocr/internal/service"
+	_ "github.com/straydragon/bookxnote-local-ocr/internal/swagger-doc"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title BookxNote Local OCR API
+// @version 1.0
+// @description This is a local OCR service for BookxNote that mimics Baidu OCR API
+// @contact.name API Support
+// @contact.url https://github.com/straydragon/bookxnote-local-ocr
+// @license.name MIT
+// @license.url https://github.com/straydragon/bookxnote-local-ocr/blob/main/LICENSE
+// @host localhost:443
+// @BasePath /
+// @schemes https
 func main() {
 	// 权限检查
 	if runtime.GOOS == "linux" {
@@ -49,6 +62,9 @@ func main() {
 		rAppConfig.GET("/Get", handlers.AppConfigGetHandler)
 		rAppConfig.POST("/Set", handlers.AppConfigSetHandler)
 	}
+
+	// 添加Swagger文档路由
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	r.NoRoute(handlers.CatchAllHandler)
 	// 启动服务器

@@ -23,7 +23,13 @@ evalate-linux-build-privilege:
 generate-gui-resources:
 	go generate ./cmd/bookxnote-local-ocr/
 
-build: generate-gui-resources clean
+generate-swagger-doc:
+	swag init -g ./cmd/server/main.go -o internal/swagger-doc
+
+generate: generate-gui-resources generate-swagger-doc
+	@echo "generated"
+
+build: generate clean
 	@echo "building..."
 	@mkdir -p $(BUILD_OUTPUT_DIR)
 	@for binary in $(BINARIES); do \

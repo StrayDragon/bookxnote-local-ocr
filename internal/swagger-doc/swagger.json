@@ -1,0 +1,350 @@
+{
+    "schemes": [
+        "https"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is a local OCR service for BookxNote that mimics Baidu OCR API",
+        "title": "BookxNote Local OCR API",
+        "contact": {
+            "name": "API Support",
+            "url": "https://github.com/straydragon/bookxnote-local-ocr"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://github.com/straydragon/bookxnote-local-ocr/blob/main/LICENSE"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:443",
+    "basePath": "/",
+    "paths": {
+        "/_app/config/Get": {
+            "get": {
+                "description": "根据key获取配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "获取配置",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "配置项",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/_app/config/Set": {
+            "post": {
+                "description": "根据key设置配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "config"
+                ],
+                "summary": "设置配置",
+                "parameters": [
+                    {
+                        "description": "配置项和值",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.AppConfigSetReq"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/catch-all": {
+            "get": {
+                "description": "返回一个空响应用于任何未定义的路由",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "misc"
+                ],
+                "summary": "处理未定义的路由",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/oauth/2.0/token": {
+            "post": {
+                "description": "提供一个mock的OAuth token用于百度OCR API兼容",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "获取 OAuth token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Grant type",
+                        "name": "grant_type",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client ID",
+                        "name": "client_id",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Client secret",
+                        "name": "client_secret",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.APITokenResp"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest/2.0/ocr/v1/accurate_basic": {
+            "post": {
+                "description": "使用UmiOCR识别图片中的文字",
+                "consumes": [
+                    "application/x-www-form-urlencoded"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "ocr"
+                ],
+                "summary": "对图片进行OCR识别",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Base64编码的图片数据",
+                        "name": "image",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)图片的URL",
+                        "name": "url",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)Base64编码的PDF文件",
+                        "name": "pdf_file",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)PDF页码",
+                        "name": "pdf_file_num",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)语言类型",
+                        "name": "language_type",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)是否检测文字方向",
+                        "name": "detect_direction",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)是否将文字组织成段落",
+                        "name": "paragraph",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "(无效)是否返回字符概率",
+                        "name": "probability",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.APIAccurateOCRResp"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResp"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handlers.ErrorResp"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handlers.APIAccurateOCRResp": {
+            "type": "object",
+            "properties": {
+                "direction": {
+                    "type": "integer"
+                },
+                "log_id": {
+                    "type": "integer"
+                },
+                "words_result": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/handlers.APIAccurateOCRRespWordResult"
+                    }
+                },
+                "words_result_num": {
+                    "type": "integer"
+                },
+                "x_backend": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.APIAccurateOCRRespWordResult": {
+            "type": "object",
+            "properties": {
+                "words": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.APITokenResp": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "scope": {
+                    "type": "string"
+                },
+                "session_key": {
+                    "type": "string"
+                },
+                "session_secret": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.AppConfigSetReq": {
+            "type": "object",
+            "required": [
+                "key",
+                "value"
+            ],
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {}
+            }
+        },
+        "handlers.ErrorResp": {
+            "type": "object",
+            "properties": {
+                "error_code": {
+                    "description": "错误码",
+                    "type": "integer"
+                },
+                "error_msg": {
+                    "description": "错误信息",
+                    "type": "string"
+                },
+                "error_xtip": {
+                    "description": "错误提示（可选）这里作为扩展字段(X*)方便看",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

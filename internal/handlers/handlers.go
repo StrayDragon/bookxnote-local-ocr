@@ -54,7 +54,17 @@ type APIAccurateOCRResp struct {
 	XBackend       string                          `json:"x_backend"`
 }
 
-// TokenHandler 处理token请求
+// TokenHandler 处理token请求(Hook Baidu OCR API)
+// @Summary 获取 OAuth token
+// @Description 提供一个mock的OAuth token用于百度OCR API兼容
+// @Tags auth
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param grant_type formData string true "Grant type"
+// @Param client_id formData string true "Client ID"
+// @Param client_secret formData string true "Client secret"
+// @Success 200 {object} APITokenResp
+// @Router /oauth/2.0/token [post]
 func TokenHandler(c *gin.Context) {
 	c.JSON(200, APITokenResp{
 		AccessToken:   "24.460da4889caad24cccf1fbbeb6608.2592000.1458530384.282335-1234567",
@@ -66,7 +76,24 @@ func TokenHandler(c *gin.Context) {
 	})
 }
 
-// AccurateOCRHandler 处理OCR请求
+// AccurateOCRHandler 处理OCR请求(Hook Baidu OCR API)
+// @Summary 对图片进行OCR识别
+// @Description 使用UmiOCR识别图片中的文字
+// @Tags ocr
+// @Accept x-www-form-urlencoded
+// @Produce json
+// @Param image formData string false "Base64编码的图片数据"
+// @Param url formData string false "(无效)图片的URL"
+// @Param pdf_file formData string false "(无效)Base64编码的PDF文件"
+// @Param pdf_file_num formData string false "(无效)PDF页码"
+// @Param language_type formData string false "(无效)语言类型"
+// @Param detect_direction formData string false "(无效)是否检测文字方向"
+// @Param paragraph formData string false "(无效)是否将文字组织成段落"
+// @Param probability formData string false "(无效)是否返回字符概率"
+// @Success 200 {object} APIAccurateOCRResp
+// @Failure 400 {object} ErrorResp
+// @Failure 500 {object} ErrorResp
+// @Router /rest/2.0/ocr/v1/accurate_basic [post]
 func AccurateOCRHandler(c *gin.Context) {
 	svc := GetService(c)
 
@@ -104,7 +131,12 @@ func AccurateOCRHandler(c *gin.Context) {
 }
 
 // CatchAllHandler 处理未定义的路由
+// @Summary 处理未定义的路由
+// @Description 返回一个空响应用于任何未定义的路由
+// @Tags misc
+// @Produce json
+// @Success 200 {object} object
+// @Router /catch-all [get]
 func CatchAllHandler(c *gin.Context) {
-	log.Printf("Captured undefined route: %s %s", c.Request.Method, c.Request.URL.Path)
 	c.JSON(200, gin.H{})
 }
