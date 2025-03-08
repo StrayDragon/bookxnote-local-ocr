@@ -1,0 +1,232 @@
+basePath: /
+definitions:
+  handlers.APIAccurateOCRResp:
+    properties:
+      direction:
+        type: integer
+      log_id:
+        type: integer
+      words_result:
+        items:
+          $ref: '#/definitions/handlers.APIAccurateOCRRespWordResult'
+        type: array
+      words_result_num:
+        type: integer
+      x_backend:
+        type: string
+    type: object
+  handlers.APIAccurateOCRRespWordResult:
+    properties:
+      words:
+        type: string
+    type: object
+  handlers.APITokenResp:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+      scope:
+        type: string
+      session_key:
+        type: string
+      session_secret:
+        type: string
+    type: object
+  handlers.AppConfigSetReq:
+    properties:
+      key:
+        type: string
+      value: {}
+    required:
+    - key
+    - value
+    type: object
+  handlers.ErrorResp:
+    properties:
+      error_code:
+        description: 错误码
+        type: integer
+      error_msg:
+        description: 错误信息
+        type: string
+      error_xtip:
+        description: 错误提示（可选）这里作为扩展字段(X*)方便看
+        type: string
+    type: object
+host: localhost:443
+info:
+  contact:
+    name: API Support
+    url: https://github.com/straydragon/bookxnote-local-ocr
+  description: This is a local OCR service for BookxNote that mimics Baidu OCR API
+  license:
+    name: MIT
+    url: https://github.com/straydragon/bookxnote-local-ocr/blob/main/LICENSE
+  title: BookxNote Local OCR API
+  version: "1.0"
+paths:
+  /_app/config/Get:
+    get:
+      consumes:
+      - application/json
+      description: 根据key获取配置
+      parameters:
+      - description: 配置项
+        in: query
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: 获取配置
+      tags:
+      - config
+  /_app/config/Set:
+    post:
+      consumes:
+      - application/json
+      description: 根据key设置配置
+      parameters:
+      - description: 配置项和值
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.AppConfigSetReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: 设置配置
+      tags:
+      - config
+  /catch-all:
+    get:
+      description: 返回一个空响应用于任何未定义的路由
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+      summary: 处理未定义的路由
+      tags:
+      - misc
+  /oauth/2.0/token:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 提供一个mock的OAuth token用于百度OCR API兼容
+      parameters:
+      - description: Grant type
+        in: formData
+        name: grant_type
+        required: true
+        type: string
+      - description: Client ID
+        in: formData
+        name: client_id
+        required: true
+        type: string
+      - description: Client secret
+        in: formData
+        name: client_secret
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APITokenResp'
+      summary: 获取 OAuth token
+      tags:
+      - auth
+  /rest/2.0/ocr/v1/accurate_basic:
+    post:
+      consumes:
+      - application/x-www-form-urlencoded
+      description: 使用UmiOCR识别图片中的文字
+      parameters:
+      - description: Base64编码的图片数据
+        in: formData
+        name: image
+        type: string
+      - description: (无效)图片的URL
+        in: formData
+        name: url
+        type: string
+      - description: (无效)Base64编码的PDF文件
+        in: formData
+        name: pdf_file
+        type: string
+      - description: (无效)PDF页码
+        in: formData
+        name: pdf_file_num
+        type: string
+      - description: (无效)语言类型
+        in: formData
+        name: language_type
+        type: string
+      - description: (无效)是否检测文字方向
+        in: formData
+        name: detect_direction
+        type: string
+      - description: (无效)是否将文字组织成段落
+        in: formData
+        name: paragraph
+        type: string
+      - description: (无效)是否返回字符概率
+        in: formData
+        name: probability
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIAccurateOCRResp'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResp'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResp'
+      summary: 对图片进行OCR识别
+      tags:
+      - ocr
+schemes:
+- https
+swagger: "2.0"
