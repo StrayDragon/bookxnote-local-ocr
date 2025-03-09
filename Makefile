@@ -15,6 +15,9 @@ ARCHIVE_NAME := $(APP_NAME)-$(PLATFORM_SUFFIX)
 ARCHIVE_EXT := $(if $(filter windows,$(GOOS)),.zip,.tar.gz)
 BINARY_SUFFIX := $(if $(filter windows,$(GOOS)),.exe,)
 
+OPENAPI_OUTPUT_DIR:=internal/client/openapi
+OPENAPI_CLEANUP_FILES:=docs test .openapi-generator .gitignore .travis.yml git_push.sh .openapi-generator-ignore api
+
 all: package
 
 evalate-linux-build-privilege:
@@ -23,10 +26,23 @@ evalate-linux-build-privilege:
 generate-gui-resources:
 	go generate ./cmd/bookxnote-local-ocr/
 
-generate-swagger-doc:
-	swag init -g ./cmd/server/main.go -o internal/swagger-doc
+generate-api-doc:
+	mkdir -p internal/swagger-doc/openapi
+	# replace to swag2op get openapi 3.0 spec for better generator experience
+	# go run github.com/swaggo/swag/cmd/swag@latest init -g ./cmd/server/main.go -o internal/swagger-doc
+	go run github.com/zxmfke/swagger2openapi3/cmd/swag2op@latest init -g ./cmd/server/main.go \
+		-o internal/swagger-doc/ \
+		-openo internal/swagger-doc/openapi
 
-generate: generate-gui-resources generate-swagger-doc
+generate-api-client: generate-api-doc
+	mkdir -p $(OPENAPI_OUTPUT_DIR)
+	uvx openapi-generator-cli generate -i internal/swagger-doc/openapi/swagger.yaml \
+		-g go -o $(OPENAPI_OUTPUT_DIR) \
+		--skip-validate-spec \
+		--additional-properties=disallowAdditionalPropertiesIfNotPresent=false,enumClassPrefix=true,structPrefix=true,generateInterfaces=true,isGoSubmodule=true,withGoMod=false
+	rm -rf $(addprefix $(OPENAPI_OUTPUT_DIR)/,$(OPENAPI_CLEANUP_FILES))
+
+generate: generate-gui-resources generate-api-doc generate-api-client
 	@echo "generated"
 
 build: generate clean
