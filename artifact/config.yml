@@ -1,3 +1,39 @@
+# 本地 OCR 服务配置
 ocr:
   umiocr:
-    api_url: http://127.0.0.1:1224
+    api_url: "http://127.0.0.1:1224"
+
+# LLM 服务配置
+llm:
+  models:
+    - provider: "openai"
+      api_key: "sk-"
+      api_base_url: "https://api.openai.com/v1"
+      name: "gpt-4o-mini"
+      ident: "default"
+
+  prompts:
+    - ident: "summarize"
+      prompt: "Summarize the following text and create concise notes:\n\n%s"
+    - ident: "key-points"
+      prompt: "Extract the key points from the following text:\n\n%s"
+    - ident: "explain"
+      prompt: "Explain the following text in simpler terms:\n\n%s"
+
+# OCR 后处理
+after_ocr:
+  auto_fix_content:
+    enabled: false
+    rules:
+      - type: "llm"
+        ident: "default"
+
+  translate:
+    enabled: false
+    target_language: "zh-CN"
+    by: "llm"
+    use_ident: "default"
+
+  generate_by_llm:
+    enabled: false
+    prompt_ident: "summarize"

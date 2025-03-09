@@ -1,0 +1,248 @@
+components:
+    schemas:
+        handlers.APIAccurateOCRResp:
+            properties:
+                direction:
+                    type: integer
+                log_id:
+                    type: integer
+                words_result:
+                    items:
+                        $ref: '#/components/schemas/handlers.APIAccurateOCRRespWordResult'
+                    type: array
+                words_result_num:
+                    type: integer
+                x_backend:
+                    type: string
+            type: object
+        handlers.APIAccurateOCRRespWordResult:
+            properties:
+                words:
+                    type: string
+            type: object
+        handlers.APITokenResp:
+            properties:
+                access_token:
+                    type: string
+                expires_in:
+                    type: integer
+                refresh_token:
+                    type: string
+                scope:
+                    type: string
+                session_key:
+                    type: string
+                session_secret:
+                    type: string
+            type: object
+        handlers.AppConfigSetReq:
+            properties:
+                key:
+                    type: string
+                value: {}
+            required:
+                - key
+                - value
+            type: object
+        handlers.ErrorResp:
+            properties:
+                error_code:
+                    description: 错误码
+                    type: integer
+                error_msg:
+                    description: 错误信息
+                    type: string
+                error_xtip:
+                    description: 错误提示（可选）这里作为扩展字段(X*)方便看
+                    type: string
+            type: object
+info:
+    contact:
+        name: API Support
+        url: https://github.com/straydragon/bookxnote-local-ocr
+    description: This is a local OCR service for BookxNote that mimics Baidu OCR API
+    license:
+        name: MIT
+        url: https://github.com/straydragon/bookxnote-local-ocr/blob/main/LICENSE
+    title: BookxNote Local OCR API
+    version: "1.0"
+openapi: 3.0.3
+paths:
+    /_app/config/Get:
+        get:
+            description: 根据key获取配置
+            parameters:
+                - description: 配置项
+                  in: query
+                  name: key
+                  required: true
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: Bad Request
+                "404":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: Not Found
+            summary: 获取配置
+            tags:
+                - config
+    /_app/config/Set:
+        post:
+            description: 根据key设置配置
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/handlers.AppConfigSetReq'
+                description: 配置项和值
+                required: true
+                x-originalParamName: request
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: Bad Request
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: Internal Server Error
+            summary: 设置配置
+            tags:
+                - config
+    /catch-all:
+        get:
+            description: 返回一个空响应用于任何未定义的路由
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                    description: OK
+            summary: 处理未定义的路由
+            tags:
+                - misc
+    /oauth/2.0/token:
+        post:
+            description: 提供一个mock的OAuth token用于百度OCR API兼容
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            properties:
+                                client_id:
+                                    description: Client ID
+                                    type: string
+                                    x-formData-name: client_id
+                                client_secret:
+                                    description: Client secret
+                                    type: string
+                                    x-formData-name: client_secret
+                                grant_type:
+                                    description: Grant type
+                                    type: string
+                                    x-formData-name: grant_type
+                            required:
+                                - grant_type
+                                - client_id
+                                - client_secret
+                            type: object
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/handlers.APITokenResp'
+                    description: OK
+            summary: 获取 OAuth token
+            tags:
+                - auth
+    /rest/2.0/ocr/v1/accurate_basic:
+        post:
+            description: 使用UmiOCR识别图片中的文字
+            requestBody:
+                content:
+                    application/x-www-form-urlencoded:
+                        schema:
+                            properties:
+                                detect_direction:
+                                    description: (无效)是否检测文字方向
+                                    type: string
+                                    x-formData-name: detect_direction
+                                image:
+                                    description: Base64编码的图片数据
+                                    type: string
+                                    x-formData-name: image
+                                language_type:
+                                    description: (无效)语言类型
+                                    type: string
+                                    x-formData-name: language_type
+                                paragraph:
+                                    description: (无效)是否将文字组织成段落
+                                    type: string
+                                    x-formData-name: paragraph
+                                pdf_file:
+                                    description: (无效)Base64编码的PDF文件
+                                    type: string
+                                    x-formData-name: pdf_file
+                                pdf_file_num:
+                                    description: (无效)PDF页码
+                                    type: string
+                                    x-formData-name: pdf_file_num
+                                probability:
+                                    description: (无效)是否返回字符概率
+                                    type: string
+                                    x-formData-name: probability
+                                url:
+                                    description: (无效)图片的URL
+                                    type: string
+                                    x-formData-name: url
+                            type: object
+            responses:
+                "200":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/handlers.APIAccurateOCRResp'
+                    description: OK
+                "400":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/handlers.ErrorResp'
+                    description: Bad Request
+                "500":
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/handlers.ErrorResp'
+                    description: Internal Server Error
+            summary: 对图片进行OCR识别
+            tags:
+                - ocr
+servers:
+    - url: https://localhost:443/

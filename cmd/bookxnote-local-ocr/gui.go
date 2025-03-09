@@ -2,7 +2,11 @@
 package main
 
 import (
+	"context"
+	"crypto/tls"
+	"errors"
 	"fmt"
+	"net/http"
 	"os"
 	"os/exec"
 	"syscall"
@@ -14,6 +18,8 @@ import (
 	"fyne.io/fyne/v2/dialog"
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
+
+	"github.com/straydragon/bookxnote-local-ocr/internal/client/openapi"
 )
 
 var i18n = map[string]map[string]string{
@@ -34,11 +40,17 @@ var i18n = map[string]map[string]string{
 		"ui.show":            "显示",
 		"ui.exit":            "退出",
 
+		"ui.postOCR":               "OCR后处理",
+		"ui.postOCR.autoFixLayout": "自动整理行",
+		"ui.postOCR.translate":     "自动翻译",
+		"ui.postOCR.generateNotes": "自动生成笔记",
+
 		"notify.title.server":       "服务器状态",
 		"notify.title.error":        "错误",
 		"notify.title.installing":   "安装中",
 		"notify.title.success":      "成功",
 		"notify.title.uninstalling": "卸载中",
+		"notify.title.config":       "配置更新",
 
 		"notify.msg.serverStarted":     "服务器已启动",
 		"notify.msg.serverStopped":     "服务器已停止",
@@ -46,6 +58,7 @@ var i18n = map[string]map[string]string{
 		"notify.msg.installComplete":   "配置安装完成",
 		"notify.msg.uninstalling":      "正在卸载配置...",
 		"notify.msg.uninstallComplete": "配置卸载完成",
+		"notify.msg.configUpdated":     "配置已更新",
 
 		"error.serverAlreadyRunning": "服务器已在运行",
 		"error.serverNotRunning":     "服务器未运行",
@@ -53,10 +66,11 @@ var i18n = map[string]map[string]string{
 		"error.stopFailed":           "停止服务器失败: %v",
 		"error.installFailed":        "安装配置失败: %v",
 		"error.uninstallFailed":      "卸载配置失败: %v",
+		"error.configUpdateFailed":   "更新配置失败: %v",
 
-		"log.serverStarted":  "[bookxnote-local-ocr] %v | 服务器已启动\n",
-		"log.serverStopped":  "[bookxnote-local-ocr] %v | 服务器已停止\n",
-		"log.serverStopping": "[bookxnote-local-ocr] %v | 已停止服务器...\n",
+		"log.serverStarted":  "[BXN Local OCR (GUI)] %v | 服务器已启动\n",
+		"log.serverStopped":  "[BXN Local OCR (GUI)] %v | 服务器已停止\n",
+		"log.serverStopping": "[BXN Local OCR (GUI)] %v | 已停止服务器...\n",
 	},
 }
 
@@ -215,7 +229,7 @@ func (g *GUIApp) notifyUser(title, content string) {
 
 func (g *GUIApp) startServer() error {
 	if g.serverProcess != nil {
-		return fmt.Errorf(t("error.serverAlreadyRunning"))
+		return errors.New(t("error.serverAlreadyRunning"))
 	}
 
 	cmd := exec.Command(g.executablePath, "server")
@@ -252,11 +266,11 @@ func (g *GUIApp) monitorServerProcess(cmd *exec.Cmd) {
 
 func (g *GUIApp) stopServer() error {
 	if g.serverProcess == nil {
-		return fmt.Errorf(t("error.serverNotRunning"))
+		return errors.New(t("error.serverNotRunning"))
 	}
 
 	if err := g.serverProcess.Signal(os.Interrupt); err != nil {
-		return fmt.Errorf(t("error.stopFailed"), err)
+		return errors.New(t("error.stopFailed"))
 	}
 
 	g.notifyUser(t("notify.title.server"), t("notify.msg.serverStopped"))
@@ -305,7 +319,9 @@ func (g *GUIApp) setupTray() {
 		} else {
 			toggleServerItem.Label = t("ui.stopServer")
 		}
-		desktopApp.SetSystemTrayMenu(createTrayMenu(g, toggleServerItem))
+
+		menu := createTrayMenu(g, toggleServerItem)
+		desktopApp.SetSystemTrayMenu(menu)
 	}
 
 	toggleServerItem = fyne.NewMenuItem(t("ui.startServer"), func() {
@@ -330,22 +346,36 @@ func (g *GUIApp) setupTray() {
 }
 
 func createTrayMenu(g *GUIApp, toggleServerItem *fyne.MenuItem) *fyne.Menu {
-	return fyne.NewMenu(t("appTitle"),
-		toggleServerItem,
-		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem(t("ui.show"), func() {
-			g.window.Show()
-		}),
-		fyne.NewMenuItem(t("ui.exit"), func() {
-			if g.serverProcess != nil {
-				_ = g.stopServer()
-			}
-			g.fyneApp.Quit()
-		}),
-	)
+	showItem := fyne.NewMenuItem(t("ui.show"), func() {
+		g.window.Show()
+	})
+
+	autoFixLayoutItem := fyne.NewMenuItem(t("ui.postOCR.autoFixLayout"), func() {
+		go g.togglePostOCRFeature("after_ocr.auto_fix_content.enabled")
+	})
+
+	translateItem := fyne.NewMenuItem(t("ui.postOCR.translate"), func() {
+		go g.togglePostOCRFeature("after_ocr.translate.enabled")
+	})
+
+	generateNotesItem := fyne.NewMenuItem(t("ui.postOCR.generateNotes"), func() {
+		go g.togglePostOCRFeature("after_ocr.generate_by_llm.enabled")
+	})
+
+	postOCRMenu := fyne.NewMenu(t("ui.postOCR"), autoFixLayoutItem, translateItem, generateNotesItem)
+	postOCRItem := fyne.NewMenuItem(t("ui.postOCR"), nil)
+	postOCRItem.ChildMenu = postOCRMenu
+
+	exitItem := fyne.NewMenuItem(t("ui.exit"), func() {
+		g.fyneApp.Quit()
+	})
+
+	return fyne.NewMenu("", toggleServerItem, showItem, postOCRItem, exitItem)
 }
 
-func (g *GUIApp) updateMenuPeriodically(desktopApp desktop.App, toggleServerItem *fyne.MenuItem, updateMenu func()) {
+func (g *GUIApp) updateMenuPeriodically(_ desktop.App, _ *fyne.MenuItem, updateMenu func()) {
+	updateMenu()
+
 	var lastServerState bool
 	for {
 		time.Sleep(1 * time.Second)
@@ -353,7 +383,6 @@ func (g *GUIApp) updateMenuPeriodically(desktopApp desktop.App, toggleServerItem
 			return
 		}
 
-		// Only update the menu if the server state has changed
 		currentServerState := g.serverProcess != nil
 		if currentServerState != lastServerState {
 			updateMenu()
@@ -382,4 +411,49 @@ func runGUI() error {
 		return err
 	}
 	return guiApp.Run()
+}
+
+func (g *GUIApp) togglePostOCRFeature(configKey string) {
+	cfg := openapi.NewConfiguration()
+	cfg.HTTPClient = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+
+	client := openapi.NewAPIClient(cfg)
+
+	getResult, _, err := client.ConfigAPI.AppConfigGetGet(context.Background()).Key(configKey).Execute()
+	if err != nil {
+		g.notifyUser(t("notify.title.error"), fmt.Sprintf(t("error.configUpdateFailed"), err))
+		return
+	}
+
+	currentValue, ok := getResult["value"].(bool)
+	if !ok {
+		currentValue = false
+	}
+
+	setReq := openapi.NewHandlersAppConfigSetReq(configKey, !currentValue)
+	_, _, err = client.ConfigAPI.AppConfigSetPost(context.Background()).HandlersAppConfigSetReq(*setReq).Execute()
+	if err != nil {
+		g.notifyUser(t("notify.title.error"), fmt.Sprintf(t("error.configUpdateFailed"), err))
+		return
+	}
+
+	featureName := ""
+	switch configKey {
+	case "after_ocr.auto_fix_content.enabled":
+		featureName = t("ui.postOCR.autoFixLayout")
+	case "after_ocr.translate.enabled":
+		featureName = t("ui.postOCR.translate")
+	case "after_ocr.generate_by_llm.enabled":
+		featureName = t("ui.postOCR.generateNotes")
+	}
+
+	status := "启用"
+	if currentValue {
+		status = "禁用"
+	}
+	g.notifyUser(t("notify.title.config"), fmt.Sprintf("%s 已%s", featureName, status))
 }

@@ -111,13 +111,19 @@ func AccurateOCRHandler(c *gin.Context) {
 
 	resp, err := svc.UmiOCRClient.Recognize(req.Image)
 	if err != nil {
-		log.Printf("OCR recognition failed: %v", err)
+		log.Printf("OCR识别失败: %v", err)
 		c.JSON(500, ErrInternalServerResp)
 		return
 	}
 
-	wordsResult := make([]*APIAccurateOCRRespWordResult, 0, len(resp.Data))
-	for _, item := range resp.Data {
+	processedResp, err := svc.ProcessOCRResult(c.Request.Context(), resp)
+	if err != nil {
+		log.Printf("OCR后处理失败: %v", err)
+		processedResp = resp
+	}
+
+	wordsResult := make([]*APIAccurateOCRRespWordResult, 0, len(processedResp.Data))
+	for _, item := range processedResp.Data {
 		wordsResult = append(wordsResult, &APIAccurateOCRRespWordResult{
 			Words: item.Text + "\n",
 		})
