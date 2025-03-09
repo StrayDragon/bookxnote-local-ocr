@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/areYouLazy/libhosty"
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
@@ -26,6 +28,7 @@ const usageTemplate = `BookXNote 本地OCR方案
 使用方法: %[1]s <命令> [可选参数]
 
 命令:
+  gui                 打开图形化界面
   server              启动本地转发服务器 (需要管理员权限: 监听443端口)
   install             安装所有必需配置 (需要管理员权限)
     -cert [-force]    安装证书 [-force: 强制重新生成]
@@ -73,14 +76,17 @@ func (app *App) printUsage() {
 	fmt.Printf(usageTemplate, app.binaryName)
 }
 
-func runBinary(name string, args ...string) error {
+func runBinary(name string, args ...string) (*exec.Cmd, error) {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+	return cmd, nil
 }
 
-func (app *App) runBinary(name string, args ...string) error {
+func (app *App) runBinary(name string, args ...string) (*exec.Cmd, error) {
 	subCmdPath := filepath.Join(app.executableDir, name)
 	// var newName string
 	// var newArgs []string
@@ -91,10 +97,7 @@ func (app *App) runBinary(name string, args ...string) error {
 	// 	newName = subCmdPath
 	// 	newArgs = args
 	// }
-	if err := runBinary(subCmdPath, args...); err != nil {
-		return fmt.Errorf("执行失败 > %w", err)
-	}
-	return nil
+	return runBinary(subCmdPath, args...)
 }
 
 func (app *App) ensureCertificates() error {
@@ -109,7 +112,11 @@ func (app *App) ensureCertificates() error {
 		}
 	}
 	if !isExist {
-		if err := app.runBinary("certgen", os.Args[2:]...); err != nil {
+		cmd, err := app.runBinary("certgen", os.Args[2:]...)
+		if err != nil {
+			return fmt.Errorf("证书生成失败 > %w", err)
+		}
+		if err := cmd.Wait(); err != nil {
 			return fmt.Errorf("证书生成失败 > %w", err)
 		}
 	}
@@ -177,9 +184,36 @@ func (app *App) runServer() error {
 	}
 
 	log.Println("启动本地服务器...")
-	if err := app.runBinary("server", os.Args[2:]...); err != nil {
+	cmd, err := app.runBinary("server", os.Args[2:]...)
+	if err != nil {
 		return fmt.Errorf("服务器启动失败 > %w", err)
 	}
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		<-c
+		log.Println("接收到终止信号，正在关闭服务器...")
+		if cmd.Process != nil {
+			if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+				log.Printf("无法发送终止信号到服务器: %v", err)
+				if err := cmd.Process.Kill(); err != nil {
+					log.Printf("无法强制终止服务器: %v", err)
+				}
+			}
+		}
+	}()
+
+	log.Println("服务器已启动，按Ctrl+C终止...")
+	if err := cmd.Wait(); err != nil {
+		if _, ok := err.(*exec.ExitError); ok {
+			log.Println("服务器已退出")
+		} else {
+			return fmt.Errorf("服务器运行出错 > %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -199,7 +233,11 @@ func (app *App) runInstall() error {
 			if len(os.Args) > 3 && os.Args[3] == "-force" {
 				args = []string{"-force"}
 			}
-			return app.runBinary("certgen", args...)
+			cmd, err := app.runBinary("certgen", args...)
+			if err != nil {
+				return fmt.Errorf("证书安装失败 > %w", err)
+			}
+			return cmd.Wait()
 		case "-hosts":
 			return app.ensureHosts()
 		default:
@@ -215,7 +253,11 @@ func (app *App) runInstall() error {
 		return fmt.Errorf("hosts配置失败 > %w", err)
 	}
 
-	if err := app.runBinary("certgen"); err != nil {
+	cmd, err := app.runBinary("certgen")
+	if err != nil {
+		return fmt.Errorf("证书安装失败 > %w", err)
+	}
+	if err := cmd.Wait(); err != nil {
 		return fmt.Errorf("证书安装失败 > %w", err)
 	}
 
@@ -229,7 +271,11 @@ func (app *App) runUninstall() error {
 		switch os.Args[2] {
 		case "-cert":
 			// 转发到原来的cert -clean命令
-			return app.runBinary("certgen", "-clean")
+			cmd, err := app.runBinary("certgen", "-clean")
+			if err != nil {
+				return fmt.Errorf("证书卸载失败 > %w", err)
+			}
+			return cmd.Wait()
 		case "-hosts":
 			return app.cleanHosts()
 		default:
@@ -242,8 +288,13 @@ func (app *App) runUninstall() error {
 		return fmt.Errorf("用户取消卸载")
 	}
 
-	if err := app.runBinary("certgen", "-clean"); err != nil {
+	cmd, err := app.runBinary("certgen", "-clean")
+	if err != nil {
 		log.Printf("警告: 证书卸载失败 > %v", err)
+	} else {
+		if err := cmd.Wait(); err != nil {
+			log.Printf("警告: 证书卸载失败 > %v", err)
+		}
 	}
 
 	if err := app.cleanHosts(); err != nil {
