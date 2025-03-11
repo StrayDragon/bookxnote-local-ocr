@@ -26,12 +26,6 @@ jobs:
             goarch: amd64
             suffix: ".exe"
             artifacts: "*.zip"
-          # - goos: darwin
-          #   goarch: amd64
-          #   suffix: ""
-          # - goos: darwin
-          #   goarch: arm64
-          #   suffix: ""
 
     steps:
       - name: Checkout code
@@ -69,12 +63,15 @@ jobs:
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             build/${{ matrix.artifacts }}
           body: ${{ steps.release_template.outputs.content }}
-          append: true
+          generate_release_notes: true
+          append_body: true
+          draft: true
+          fail_on_unmatched_files: true
 
       - name: Upload artifacts
         if: "!startsWith(github.ref, 'refs/tags/')"
