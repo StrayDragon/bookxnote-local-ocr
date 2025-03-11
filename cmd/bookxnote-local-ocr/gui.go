@@ -1,4 +1,4 @@
-//go:generate go run fyne.io/fyne/v2/cmd/fyne@v2.5.4 bundle -o gui_resources.go ../../artifact/icon.png
+//go:generate fyne bundle -o gui_resources.go ../../artifact/icon.png
 package main
 
 import (

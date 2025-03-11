@@ -23,6 +23,10 @@ all: package
 evalate-linux-build-privilege:
 	sudo ./$(BUILD_OUTPUT_DIR)/setup-privileges.sh
 
+install-all-go-cmds:
+	go install fyne.io/fyne/v2/cmd/fyne@latest # 2.5.4
+	go install github.com/zxmfke/swagger2openapi3/cmd/swag2op@latest # 0.1.1
+
 generate-gui-resources:
 	go generate ./cmd/bookxnote-local-ocr/
 
@@ -30,7 +34,7 @@ generate-api-doc:
 	mkdir -p internal/swagger-doc/openapi
 	# replace to swag2op get openapi 3.0 spec for better generator experience
 	# go run github.com/swaggo/swag/cmd/swag@latest init -g ./cmd/server/main.go -o internal/swagger-doc
-	go run github.com/zxmfke/swagger2openapi3/cmd/swag2op@latest init -g ./cmd/server/main.go \
+	swag2op init -g ./cmd/server/main.go \
 		-o internal/swagger-doc/ \
 		-openo internal/swagger-doc/openapi
 
@@ -45,7 +49,7 @@ generate-api-client: generate-api-doc
 generate: generate-gui-resources generate-api-doc generate-api-client
 	@echo "generated"
 
-build: generate clean
+build: clean
 	@echo "building..."
 	@mkdir -p $(BUILD_OUTPUT_DIR)
 	@for binary in $(BINARIES); do \
@@ -76,7 +80,7 @@ package: prepare
 	fi
 	@echo "done: $(ARCHIVE_NAME)$(ARCHIVE_EXT)"
 
-dev-build: prepare evalate-linux-build-privilege
+dev-build: generate prepare evalate-linux-build-privilege
 	@echo "Done"
 
 dev-run-gui: dev-build
