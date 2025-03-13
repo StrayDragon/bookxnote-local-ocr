@@ -1,4 +1,4 @@
-## BookXNote Local OCR -VERSION-
+## BookXNote Local OCR
 
 ### 下载
 - Windows: `bookxnote-local-ocr-windows-amd64.zip`
