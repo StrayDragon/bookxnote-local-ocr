@@ -85,13 +85,14 @@ package: prepare
 	@echo "packaging..."
 	@cd $(BUILD_ROOT) && \
 	if [ "$(GOOS)" = "windows" ]; then \
-		zip -r $(ARCHIVE_NAME)$(ARCHIVE_EXT) $(APP_NAME)-$(PLATFORM_SUFFIX); \
+		7z.exe a -tzip $(ARCHIVE_NAME)$(ARCHIVE_EXT) $(APP_NAME)-$(PLATFORM_SUFFIX); \
 	else \
-		tar czf $(ARCHIVE_NAME)$(ARCHIVE_EXT) $(APP_NAME)-$(PLATFORM_SUFFIX); \
+		7z a -ttar $(ARCHIVE_NAME)$(ARCHIVE_EXT) $(APP_NAME)-$(PLATFORM_SUFFIX); \
 	fi
 	@echo "done: $(ARCHIVE_NAME)$(ARCHIVE_EXT)"
 
 dev-build: generate prepare evalate-linux-build-privilege
+	cp artifact/dev.config.yml $(BUILD_OUTPUT_DIR)/config.yml
 	@echo "Done"
 
 dev-run-gui: dev-build
