@@ -50,7 +50,7 @@ jobs:
         shell: bash
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: bookxnote-local-ocr-${{ matrix.goos }}-${{ matrix.goarch }}
           path: build/bookxnote-local-ocr-${{ matrix.goos }}-${{ matrix.goarch }}
@@ -63,7 +63,7 @@ jobs:
 
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: artifacts
 
