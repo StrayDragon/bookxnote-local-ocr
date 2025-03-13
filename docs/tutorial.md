@@ -33,14 +33,15 @@
 
 可以使用GUI程序(功能和Cli一致, 但是可以托盘管理)
 ```sh
-./bookxnote-local-ocr gui
+./bookxnote-local-ocr-gui
 ```
 
 ## Windows
 
 解压后会看到以下文件：
 - `install.bat` - 用于安装证书和配置hosts
-- `start.bat` - 每次使用OCR功能时运行, 保持窗口开启
+- `start.bat` - 打开命令行模式, 每次使用OCR功能时运行, 保持窗口开启
+- `start-gui.bat` - 打开图形界面模式, 每次使用OCR功能时运行, 保持窗口开启
 - `uninstall.bat` - 清理证书和hosts配置
 
 > [!note]
@@ -60,7 +61,7 @@
 
 如果成功, 则可以正常使用 OCR 功能, 否则参考 [#QA](#QA) 排查问题
 
-# OCR后处理功能
+# OCR后处理功能(使用GUI(图形界面)模式使用)
 
 本程序支持在OCR识别后对文本进行进一步处理，不过需要提前配置, 包括：
 
