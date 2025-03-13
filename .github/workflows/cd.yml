@@ -89,5 +89,7 @@ jobs:
           files: |
             ${{ env.DOWNLOADED_PATH }}/**/*
           body_path: ${{ github.workspace }}/.github/release-note.md
+          append_body: true
           draft: true
           generate_release_notes: true
+          fail_on_unmatched_files: true
