@@ -25,6 +25,7 @@ import (
 )
 
 var serverStopChan = make(chan struct{}, 1)
+var updateSystemTray func()
 
 var i18n = map[string]map[string]string{
 	"zh": {
@@ -335,6 +336,10 @@ func (g *GUIApp) startServer() error {
 		g.serverProcess = &os.Process{Pid: os.Getpid()}
 		g.notifyUser(t("notify.title.server"), t("notify.msg.serverStarted"))
 		fmt.Printf(t("log.serverStarted"), time.Now().Format("2006/01/02 - 15:04:05"))
+
+		if updateSystemTray != nil {
+			updateSystemTray()
+		}
 	}
 
 	if g.serverSwitch != nil {
@@ -348,6 +353,11 @@ func (g *GUIApp) startServer() error {
 			g.serverSwitch.SetChecked(false)
 		}
 		fmt.Printf(t("log.serverStopped"), time.Now().Format("2006/01/02 - 15:04:05"))
+
+		if updateSystemTray != nil {
+			updateSystemTray()
+		}
+
 		cancel()
 	}()
 
@@ -373,6 +383,10 @@ func (g *GUIApp) stopServer() error {
 		g.serverSwitch.SetChecked(false)
 	}
 
+	if updateSystemTray != nil {
+		updateSystemTray()
+	}
+
 	return nil
 }
 
@@ -394,6 +408,8 @@ func (g *GUIApp) setupTray() {
 		menu := createTrayMenu(g, toggleServerItem)
 		desktopApp.SetSystemTrayMenu(menu)
 	}
+
+	updateSystemTray = updateMenu
 
 	toggleServerItem = fyne.NewMenuItem(t("ui.startServer"), func() {
 		if g.serverProcess == nil {
@@ -433,15 +449,25 @@ func createTrayMenu(g *GUIApp, toggleServerItem *fyne.MenuItem) *fyne.Menu {
 		go g.togglePostOCRFeature("after_ocr.generate_by_llm.enabled")
 	})
 
-	postOCRMenu := fyne.NewMenu(t("ui.postOCR"), autoFixLayoutItem, translateItem, generateNotesItem)
-	postOCRItem := fyne.NewMenuItem(t("ui.postOCR"), nil)
-	postOCRItem.ChildMenu = postOCRMenu
-
 	exitItem := fyne.NewMenuItem(t("ui.exit"), func() {
 		g.fyneApp.Quit()
 	})
 
-	return fyne.NewMenu("", toggleServerItem, showItem, postOCRItem, exitItem)
+	menuItems := []*fyne.MenuItem{toggleServerItem, showItem}
+
+	if g.serverProcess != nil {
+		menuItems = append(
+			menuItems,
+			fyne.NewMenuItemSeparator(),
+			autoFixLayoutItem,
+			translateItem,
+			generateNotesItem,
+		)
+	}
+
+	menuItems = append(menuItems, fyne.NewMenuItemSeparator(), exitItem)
+
+	return fyne.NewMenu("", menuItems...)
 }
 
 func (g *GUIApp) updateMenuPeriodically(_ desktop.App, _ *fyne.MenuItem, updateMenu func()) {

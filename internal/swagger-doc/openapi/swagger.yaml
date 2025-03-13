@@ -167,9 +167,9 @@ paths:
                                     type: string
                                     x-formData-name: grant_type
                             required:
+                                - grant_type
                                 - client_id
                                 - client_secret
-                                - grant_type
                             type: object
             responses:
                 "200":
