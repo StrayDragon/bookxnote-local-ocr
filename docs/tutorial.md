@@ -60,6 +60,50 @@
 
 如果成功, 则可以正常使用 OCR 功能, 否则参考 [#QA](#QA) 排查问题
 
+# OCR后处理功能
+
+本程序支持在OCR识别后对文本进行进一步处理，不过需要提前配置, 包括：
+
+## 自动整理行
+
+OCR识别后的文本可能存在不必要的换行或格式问题，启用此功能可以自动修复文本布局。
+
+## 自动翻译
+
+将OCR识别的文本自动翻译成指定语言，支持多种语言。
+
+## 自动生成笔记
+
+根据OCR识别的文本自动生成结构化笔记，帮助快速整理内容。
+
+## 如何配置
+
+1. 编辑下载程序所在目录下的 `config.yml`文件，配置LLM模型信息：
+   ```yaml
+   llm:
+     models:
+       - provider: "openai"
+         api_key: "你的OpenAI API密钥"
+         api_base_url: "https://api.openai.com/v1"
+         name: "gpt-3.5-turbo"
+         ident: "openai-gpt35"
+   ```
+
+2. 调整或修改 `after_ocr` 中的内容. 如：
+   ```yaml
+   after_ocr:
+     auto_fix_content:
+       enabled: true  # 启用自动整理行
+     translate:
+       enabled: false  # 是否启用自动翻译
+       target_language: "zh-CN"  # 目标语言
+     generate_by_llm:
+       enabled: false  # 是否启用自动生成笔记
+       prompt_ident: "summarize"  # 使用的提示模板ID
+   ```
+
+3. 使用GUI模式时，可以通过托盘菜单快速开启/关闭这些功能。
+
 # 卸载
 
 在解压后的目录中运行以下命令
@@ -122,4 +166,12 @@ ocr:
 ### Windows
 1. %APPDATA%/bookxnote-local-ocr/config.yml -->
 
-查看 [config.yml](../artifact/config.yml) 获取更多默认配置信息
+查看 [config.yml](../config.yml) 或者 [config.yml | Github Repo](https://github.com/StrayDragon/bookxnote-local-ocr/blob/main/artifact/config.yml) 获取更多默认配置信息
+
+## 3. OCR后处理功能不工作?
+
+- 检查配置文件中是否正确配置了LLM模型信息，特别是API密钥
+- 检查网络连接是否正常，能否访问OpenAI API
+- 检查日志输出，查看是否有错误信息
+- 如果使用GUI模式，可以通过托盘菜单重新开启/关闭功能尝试
+- 如果仍有问题, 可以[创建issue](https://github.com/StrayDragon/bookxnote-local-ocr/issues/new)
