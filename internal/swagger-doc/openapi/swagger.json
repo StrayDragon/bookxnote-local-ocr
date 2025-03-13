@@ -253,9 +253,9 @@
                                     }
                                 },
                                 "required": [
+                                    "client_id",
                                     "client_secret",
-                                    "grant_type",
-                                    "client_id"
+                                    "grant_type"
                                 ],
                                 "type": "object"
                             }

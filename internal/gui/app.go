@@ -1,14 +1,15 @@
-//go:generate fyne bundle -o gui_resources.go ../../artifact/icon.png
-package main
+package gui
 
 import (
 	"context"
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"syscall"
 	"time"
 
@@ -19,8 +20,11 @@ import (
 	"fyne.io/fyne/v2/driver/desktop"
 	"fyne.io/fyne/v2/widget"
 
+	"github.com/straydragon/bookxnote-local-ocr/internal/cli"
 	"github.com/straydragon/bookxnote-local-ocr/internal/client/openapi"
 )
+
+var serverStopChan = make(chan struct{}, 1)
 
 var i18n = map[string]map[string]string{
 	"zh": {
@@ -84,15 +88,15 @@ func t(key string) string {
 }
 
 type GUIApp struct {
-	*App
+	*cli.App
 	fyneApp       fyne.App
 	window        fyne.Window
 	serverProcess *os.Process
 	serverSwitch  *widget.Check
 }
 
-func NewGUIApp() (*GUIApp, error) {
-	cliApp, err := NewApp()
+func NewGUIApp(resourceIconPng fyne.Resource) (*GUIApp, error) {
+	cliApp, err := cli.NewApp()
 	if err != nil {
 		return nil, err
 	}
@@ -141,6 +145,57 @@ func (g *GUIApp) setupUI() {
 	g.window.SetContent(content)
 }
 
+func (g *GUIApp) runServerWithContext(ctx context.Context) error {
+	if err := g.App.EnsureHosts(); err != nil {
+		return fmt.Errorf("hosts配置失败: %w", err)
+	}
+
+	if err := g.App.EnsureCertificates(); err != nil {
+		return fmt.Errorf("证书检查失败: %w", err)
+	}
+
+	serverPath := filepath.Join(g.App.ExecutableDir, "server")
+	var args []string // No additional arguments for now
+
+	cmd := exec.Command(serverPath, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("服务器启动失败: %w", err)
+	}
+
+	log.Printf("服务器进程已启动 (PID: %d)", cmd.Process.Pid)
+
+	done := make(chan error, 1)
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case <-ctx.Done():
+		log.Println("正在终止服务器进程...")
+
+		err := cmd.Process.Signal(syscall.SIGTERM)
+		if err != nil {
+			log.Printf("无法发送SIGTERM信号: %v，尝试SIGKILL", err)
+			_ = cmd.Process.Kill()
+		} else {
+			time.Sleep(500 * time.Millisecond)
+
+			if err := cmd.Process.Signal(syscall.Signal(0)); err == nil {
+				log.Println("服务器进程未响应，强制终止")
+				_ = cmd.Process.Kill()
+			}
+		}
+
+		<-done
+		return ctx.Err()
+	case err := <-done:
+		return err
+	}
+}
+
 func (g *GUIApp) handleServerStart(statusLabel *widget.Label) {
 	if g.serverProcess != nil {
 		return
@@ -149,30 +204,53 @@ func (g *GUIApp) handleServerStart(statusLabel *widget.Label) {
 	go func() {
 		statusLabel.SetText(t("status.starting"))
 
-		cmd := exec.Command(g.executablePath, "server")
-		cmd.Stdout = os.Stdout
-		cmd.Stderr = os.Stderr
+		errCh := make(chan error, 1)
+		doneCh := make(chan struct{}, 1)
 
-		if err := cmd.Start(); err != nil {
+		ctx, cancel := context.WithCancel(context.Background())
+
+		go func() {
+			go func() {
+				select {
+				case <-serverStopChan:
+					cancel()
+				case <-ctx.Done():
+				}
+			}()
+
+			err := g.runServerWithContext(ctx)
+			if err != nil {
+				select {
+				case <-ctx.Done():
+				default:
+					errCh <- fmt.Errorf("服务器错误: %w", err)
+				}
+			}
+			doneCh <- struct{}{}
+		}()
+
+		select {
+		case err := <-errCh:
 			dialog.ShowError(fmt.Errorf(t("error.startFailed"), err), g.window)
 			g.serverSwitch.SetChecked(false)
 			statusLabel.SetText(t("status.startFailed"))
+			cancel()
 			return
+		case <-time.After(500 * time.Millisecond):
+			g.serverProcess = &os.Process{Pid: os.Getpid()}
+			statusLabel.SetText(t("status.running"))
+			g.notifyUser(t("notify.title.server"), t("notify.msg.serverStarted"))
+			fmt.Printf(t("log.serverStarted"), time.Now().Format("2006/01/02 - 15:04:05"))
 		}
 
-		g.serverProcess = cmd.Process
-		statusLabel.SetText(t("status.running"))
-		g.notifyUser(t("notify.title.server"), t("notify.msg.serverStarted"))
-		fmt.Printf(t("log.serverStarted"), time.Now().Format("2006/01/02 - 15:04:05"))
-
 		go func() {
-			_ = cmd.Wait()
+			<-doneCh
 			g.serverProcess = nil
 			g.serverSwitch.SetChecked(false)
-
 			statusLabel.SetText(t("status.stopped"))
 			g.notifyUser(t("notify.title.server"), t("notify.msg.serverStopped"))
 			fmt.Printf(t("log.serverStopped"), time.Now().Format("2006/01/02 - 15:04:05"))
+			cancel()
 		}()
 	}()
 }
@@ -183,10 +261,10 @@ func (g *GUIApp) handleServerStop(statusLabel *widget.Label) {
 	}
 
 	statusLabel.SetText(t("status.stopping"))
-	if err := g.serverProcess.Signal(os.Interrupt); err != nil {
-		dialog.ShowError(fmt.Errorf(t("error.stopFailed"), err), g.window)
-		g.serverSwitch.SetChecked(true)
-		return
+
+	select {
+	case serverStopChan <- struct{}{}:
+	default:
 	}
 
 	statusLabel.SetText(t("status.stopped"))
@@ -195,11 +273,7 @@ func (g *GUIApp) handleServerStop(statusLabel *widget.Label) {
 func (g *GUIApp) handleInstallConfig() {
 	dialog.ShowInformation(t("notify.title.installing"), t("notify.msg.installing"), g.window)
 
-	cmd := exec.Command(g.executablePath, "install")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
+	err := g.App.RunInstall()
 	if err != nil {
 		dialog.ShowError(fmt.Errorf(t("error.installFailed"), err), g.window)
 	} else {
@@ -210,11 +284,7 @@ func (g *GUIApp) handleInstallConfig() {
 func (g *GUIApp) handleUninstallConfig() {
 	dialog.ShowInformation(t("notify.title.uninstalling"), t("notify.msg.uninstalling"), g.window)
 
-	cmd := exec.Command(g.executablePath, "uninstall")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	err := cmd.Run()
+	err := g.App.RunUninstall()
 	if err != nil {
 		dialog.ShowError(fmt.Errorf(t("error.uninstallFailed"), err), g.window)
 	} else {
@@ -232,36 +302,56 @@ func (g *GUIApp) startServer() error {
 		return errors.New(t("error.serverAlreadyRunning"))
 	}
 
-	cmd := exec.Command(g.executablePath, "server")
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	errCh := make(chan error, 1)
+	doneCh := make(chan struct{}, 1)
 
-	if err := cmd.Start(); err != nil {
+	ctx, cancel := context.WithCancel(context.Background())
+
+	go func() {
+		go func() {
+			select {
+			case <-serverStopChan:
+				cancel()
+			case <-ctx.Done():
+			}
+		}()
+
+		err := g.runServerWithContext(ctx)
+		if err != nil {
+			select {
+			case <-ctx.Done():
+			default:
+				errCh <- fmt.Errorf("服务器错误: %w", err)
+			}
+		}
+		doneCh <- struct{}{}
+	}()
+
+	select {
+	case err := <-errCh:
+		cancel()
 		return fmt.Errorf(t("error.startFailed"), err)
+	case <-time.After(500 * time.Millisecond):
+		g.serverProcess = &os.Process{Pid: os.Getpid()}
+		g.notifyUser(t("notify.title.server"), t("notify.msg.serverStarted"))
+		fmt.Printf(t("log.serverStarted"), time.Now().Format("2006/01/02 - 15:04:05"))
 	}
-
-	g.serverProcess = cmd.Process
-	g.notifyUser(t("notify.title.server"), t("notify.msg.serverStarted"))
-	fmt.Printf(t("log.serverStarted"), time.Now().Format("2006/01/02 - 15:04:05"))
 
 	if g.serverSwitch != nil {
 		g.serverSwitch.SetChecked(true)
 	}
 
-	go g.monitorServerProcess(cmd)
+	go func() {
+		<-doneCh
+		g.serverProcess = nil
+		if g.serverSwitch != nil {
+			g.serverSwitch.SetChecked(false)
+		}
+		fmt.Printf(t("log.serverStopped"), time.Now().Format("2006/01/02 - 15:04:05"))
+		cancel()
+	}()
 
 	return nil
-}
-
-func (g *GUIApp) monitorServerProcess(cmd *exec.Cmd) {
-	_ = cmd.Wait()
-	g.serverProcess = nil
-
-	if g.serverSwitch != nil {
-		g.serverSwitch.SetChecked(false)
-	}
-
-	fmt.Printf(t("log.serverStopped"), time.Now().Format("2006/01/02 - 15:04:05"))
 }
 
 func (g *GUIApp) stopServer() error {
@@ -269,40 +359,21 @@ func (g *GUIApp) stopServer() error {
 		return errors.New(t("error.serverNotRunning"))
 	}
 
-	if err := g.serverProcess.Signal(os.Interrupt); err != nil {
-		return errors.New(t("error.stopFailed"))
+	select {
+	case serverStopChan <- struct{}{}:
+	default:
 	}
 
 	g.notifyUser(t("notify.title.server"), t("notify.msg.serverStopped"))
 	fmt.Printf(t("log.serverStopping"), time.Now().Format("2006/01/02 - 15:04:05"))
 
-	tempProcess := g.serverProcess
 	g.serverProcess = nil
 
 	if g.serverSwitch != nil {
 		g.serverSwitch.SetChecked(false)
 	}
 
-	go g.verifyServerStopped(tempProcess)
-
 	return nil
-}
-
-func (g *GUIApp) verifyServerStopped(process *os.Process) {
-	time.Sleep(500 * time.Millisecond)
-
-	if process == nil {
-		return
-	}
-
-	// Signal(0) doesn't send a signal but checks if process exists
-	if process.Signal(syscall.Signal(0)) == nil {
-		g.serverProcess = process
-
-		if g.serverSwitch != nil {
-			g.serverSwitch.SetChecked(true)
-		}
-	}
 }
 
 func (g *GUIApp) setupTray() {
@@ -405,8 +476,8 @@ func (g *GUIApp) Run() error {
 	return nil
 }
 
-func runGUI() error {
-	guiApp, err := NewGUIApp()
+func RunGUI(resourceIconPng fyne.Resource) error {
+	guiApp, err := NewGUIApp(resourceIconPng)
 	if err != nil {
 		return err
 	}

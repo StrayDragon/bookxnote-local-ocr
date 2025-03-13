@@ -1,0 +1,14 @@
+Website = "https://github.com/straydragon/bookxnote-local-ocr"
+
+[Details]
+  Icon = "artifact/icon.png"
+  Name = "BookxNote Local OCR"
+  ID = "com.github.straydragon.bookxnote-local-ocr"
+  Version = "1.0.0"
+  Build = 2
+
+[LinuxAndBSD]
+  GenericName = "BookxNote Local OCR"
+  Categories = ["Utility"]
+  Comment = "Local OCR hook for BookxNote"
+  Keywords = ["ocr", "bookxnote"]

@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"errors"
@@ -13,7 +13,6 @@ import (
 
 	"github.com/areYouLazy/libhosty"
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
-	"github.com/straydragon/bookxnote-local-ocr/internal/common/utils"
 )
 
 const (
@@ -28,7 +27,6 @@ const usageTemplate = `BookXNote 本地OCR方案
 使用方法: %[1]s <命令> [可选参数]
 
 命令:
-  gui                 打开图形化界面
   server              启动本地转发服务器 (需要管理员权限: 监听443端口)
   install             安装所有必需配置 (需要管理员权限)
     -cert [-force]    安装证书 [-force: 强制重新生成]
@@ -47,10 +45,10 @@ const usageTemplate = `BookXNote 本地OCR方案
 `
 
 type App struct {
-	executablePath string
-	executableDir  string
-	binaryName     string
-	hostsManager   *libhosty.HostsFile
+	ExecutablePath string
+	ExecutableDir  string
+	BinaryName     string
+	HostsManager   *libhosty.HostsFile
 }
 
 func NewApp() (*App, error) {
@@ -65,18 +63,18 @@ func NewApp() (*App, error) {
 	}
 
 	return &App{
-		executablePath: execPath,
-		executableDir:  filepath.Dir(execPath),
-		binaryName:     filepath.Base(execPath),
-		hostsManager:   hostsManager,
+		ExecutablePath: execPath,
+		ExecutableDir:  filepath.Dir(execPath),
+		BinaryName:     filepath.Base(execPath),
+		HostsManager:   hostsManager,
 	}, nil
 }
 
-func (app *App) printUsage() {
-	fmt.Printf(usageTemplate, app.binaryName)
+func (app *App) PrintUsage() {
+	fmt.Printf(usageTemplate, app.BinaryName)
 }
 
-func runBinary(name string, args ...string) (*exec.Cmd, error) {
+func RunBinary(name string, args ...string) (*exec.Cmd, error) {
 	cmd := exec.Command(name, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -86,21 +84,12 @@ func runBinary(name string, args ...string) (*exec.Cmd, error) {
 	return cmd, nil
 }
 
-func (app *App) runBinary(name string, args ...string) (*exec.Cmd, error) {
-	subCmdPath := filepath.Join(app.executableDir, name)
-	// var newName string
-	// var newArgs []string
-	// if runtime.GOOS != "windows" {
-	// 	newName = "sudo"
-	// 	newArgs = append([]string{subCmdPath}, args...)
-	// } else {
-	// 	newName = subCmdPath
-	// 	newArgs = args
-	// }
-	return runBinary(subCmdPath, args...)
+func (app *App) RunBinary(name string, args ...string) (*exec.Cmd, error) {
+	subCmdPath := filepath.Join(app.ExecutableDir, name)
+	return RunBinary(subCmdPath, args...)
 }
 
-func (app *App) ensureCertificates() error {
+func (app *App) EnsureCertificates() error {
 	certDir := settings.GetCertDir()
 	certFiles := []string{"cert.pem", "key.pem"}
 
@@ -112,7 +101,12 @@ func (app *App) ensureCertificates() error {
 		}
 	}
 	if !isExist {
-		cmd, err := app.runBinary("certgen", os.Args[2:]...)
+		var args []string
+		if len(os.Args) > 2 {
+			args = os.Args[2:]
+		}
+
+		cmd, err := app.RunBinary("certgen", args...)
 		if err != nil {
 			return fmt.Errorf("证书生成失败 > %w", err)
 		}
@@ -123,8 +117,8 @@ func (app *App) ensureCertificates() error {
 	return nil
 }
 
-func (app *App) findHostsLine() (*libhosty.HostsFileLine, error) {
-	lines := app.hostsManager.GetHostsFileLines()
+func (app *App) FindHostsLine() (*libhosty.HostsFileLine, error) {
+	lines := app.HostsManager.GetHostsFileLines()
 	for _, line := range lines {
 		if line.Comment == targetHostsComment &&
 			line.Address.String() == targetHostsIP &&
@@ -135,13 +129,13 @@ func (app *App) findHostsLine() (*libhosty.HostsFileLine, error) {
 	return nil, errors.New("未找到hosts记录")
 }
 
-func (app *App) ensureHosts() error {
+func (app *App) EnsureHosts() error {
 	var err error
-	if _, err = app.findHostsLine(); err == nil {
+	if _, err = app.FindHostsLine(); err == nil {
 		log.Println("已存在hosts记录, 无须再次配置")
 		return nil
 	}
-	_, _, err = app.hostsManager.AddHostsFileLineRaw(
+	_, _, err = app.HostsManager.AddHostsFileLineRaw(
 		targetHostsIP,
 		targetHostsFQDN,
 		targetHostsComment,
@@ -150,7 +144,7 @@ func (app *App) ensureHosts() error {
 		return fmt.Errorf("添加hosts记录失败 > %w", err)
 	}
 
-	if err := app.hostsManager.SaveHostsFile(); err != nil {
+	if err := app.HostsManager.SaveHostsFile(); err != nil {
 		return fmt.Errorf("保存hosts文件失败 > %w", err)
 	}
 
@@ -158,15 +152,15 @@ func (app *App) ensureHosts() error {
 	return nil
 }
 
-func (app *App) cleanHosts() error {
-	line, err := app.findHostsLine()
+func (app *App) CleanHosts() error {
+	line, err := app.FindHostsLine()
 	if err != nil {
 		return fmt.Errorf("未找到hosts记录 > %w", err)
 	}
 
-	app.hostsManager.RemoveHostsFileLineByRow(line.Number)
+	app.HostsManager.RemoveHostsFileLineByRow(line.Number)
 
-	if err := app.hostsManager.SaveHostsFile(); err != nil {
+	if err := app.HostsManager.SaveHostsFile(); err != nil {
 		return fmt.Errorf("保存hosts文件失败 > %w", err)
 	}
 
@@ -174,17 +168,24 @@ func (app *App) cleanHosts() error {
 	return nil
 }
 
-func (app *App) runServer() error {
-	if err := app.ensureHosts(); err != nil {
+func (app *App) RunServer() error {
+	if err := app.EnsureHosts(); err != nil {
 		return fmt.Errorf("hosts配置失败 > %w", err)
 	}
 
-	if err := app.ensureCertificates(); err != nil {
+	if err := app.EnsureCertificates(); err != nil {
 		return fmt.Errorf("证书检查失败 > %w", err)
 	}
 
 	log.Println("启动本地服务器...")
-	cmd, err := app.runBinary("server", os.Args[2:]...)
+
+	// Only use additional arguments if they exist
+	var args []string
+	if len(os.Args) > 2 {
+		args = os.Args[2:]
+	}
+
+	cmd, err := app.RunBinary("server", args...)
 	if err != nil {
 		return fmt.Errorf("服务器启动失败 > %w", err)
 	}
@@ -192,21 +193,35 @@ func (app *App) runServer() error {
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 
+	done := make(chan error, 1)
+
 	go func() {
-		<-c
-		log.Println("接收到终止信号，正在关闭服务器...")
-		if cmd.Process != nil {
-			if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
-				log.Printf("无法发送终止信号到服务器: %v", err)
-				if err := cmd.Process.Kill(); err != nil {
-					log.Printf("无法强制终止服务器: %v", err)
+		done <- cmd.Wait()
+	}()
+
+	// Handle signals
+	go func() {
+		select {
+		case <-c:
+			log.Println("接收到终止信号，正在关闭服务器...")
+			if cmd.Process != nil {
+				if err := cmd.Process.Signal(syscall.SIGTERM); err != nil {
+					log.Printf("无法发送终止信号到服务器: %v", err)
+					if err := cmd.Process.Kill(); err != nil {
+						log.Printf("无法强制终止服务器: %v", err)
+					}
 				}
 			}
+		case <-done:
+			// Server already exited, do nothing
 		}
 	}()
 
 	log.Println("服务器已启动，按Ctrl+C终止...")
-	if err := cmd.Wait(); err != nil {
+
+	// Wait for server to exit
+	err = <-done
+	if err != nil {
 		if _, ok := err.(*exec.ExitError); ok {
 			log.Println("服务器已退出")
 		} else {
@@ -214,10 +229,13 @@ func (app *App) runServer() error {
 		}
 	}
 
+	// Reset signal handling
+	signal.Reset(os.Interrupt, syscall.SIGTERM)
+
 	return nil
 }
 
-func (app *App) confirmAction(prompt string) bool {
+func (app *App) ConfirmAction(prompt string) bool {
 	fmt.Printf("%s [y/N]: ", prompt)
 	var response string
 	fmt.Scanln(&response)
@@ -225,7 +243,7 @@ func (app *App) confirmAction(prompt string) bool {
 	return response == "y"
 }
 
-func (app *App) runInstall() error {
+func (app *App) RunInstall() error {
 	if len(os.Args) > 2 {
 		switch os.Args[2] {
 		case "-cert":
@@ -233,115 +251,94 @@ func (app *App) runInstall() error {
 			if len(os.Args) > 3 && os.Args[3] == "-force" {
 				args = []string{"-force"}
 			}
-			cmd, err := app.runBinary("certgen", args...)
+			cmd, err := app.RunBinary("certgen", args...)
 			if err != nil {
 				return fmt.Errorf("证书安装失败 > %w", err)
 			}
 			return cmd.Wait()
 		case "-hosts":
-			return app.ensureHosts()
+			return app.EnsureHosts()
 		default:
 			return fmt.Errorf("无效的安装参数")
 		}
 	}
 
-	if !app.confirmAction("即将安装所有配置, 请确保使用管理员运行或设置过权限! 是否继续?") {
-		return fmt.Errorf("用户取消安装")
+	if len(os.Args) > 1 && os.Args[1] == "install" {
+		if !app.ConfirmAction("即将安装所有配置, 请确保使用管理员运行或设置过权限! 是否继续?") {
+			return fmt.Errorf("用户取消安装")
+		}
 	}
 
-	if err := app.ensureHosts(); err != nil {
+	if err := app.EnsureCertificates(); err != nil {
+		return fmt.Errorf("证书安装失败 > %w", err)
+	}
+
+	if err := app.EnsureHosts(); err != nil {
 		return fmt.Errorf("hosts配置失败 > %w", err)
 	}
 
-	cmd, err := app.runBinary("certgen")
-	if err != nil {
-		return fmt.Errorf("证书安装失败 > %w", err)
-	}
-	if err := cmd.Wait(); err != nil {
-		return fmt.Errorf("证书安装失败 > %w", err)
-	}
-
-	log.Println("所有配置安装完成")
+	log.Println("安装完成")
 	return nil
 }
 
-func (app *App) runUninstall() error {
-	// 解析参数
+func (app *App) RunUninstall() error {
 	if len(os.Args) > 2 {
 		switch os.Args[2] {
 		case "-cert":
-			// 转发到原来的cert -clean命令
-			cmd, err := app.runBinary("certgen", "-clean")
-			if err != nil {
-				return fmt.Errorf("证书卸载失败 > %w", err)
+			certDir := settings.GetCertDir()
+			for _, f := range []string{"cert.pem", "key.pem"} {
+				path := filepath.Join(certDir, f)
+				if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+					return fmt.Errorf("无法删除证书文件 %s > %w", f, err)
+				}
 			}
-			return cmd.Wait()
+			log.Println("证书文件已删除")
+			return nil
 		case "-hosts":
-			return app.cleanHosts()
+			return app.CleanHosts()
 		default:
 			return fmt.Errorf("无效的卸载参数")
 		}
 	}
 
-	// 卸载全部配置
-	if !app.confirmAction("即将卸载所有配置, 请确保使用管理员权限~ 是否继续?") {
-		return fmt.Errorf("用户取消卸载")
-	}
-
-	cmd, err := app.runBinary("certgen", "-clean")
-	if err != nil {
-		log.Printf("警告: 证书卸载失败 > %v", err)
-	} else {
-		if err := cmd.Wait(); err != nil {
-			log.Printf("警告: 证书卸载失败 > %v", err)
+	if len(os.Args) > 1 && os.Args[1] == "uninstall" {
+		if !app.ConfirmAction("即将卸载所有配置, 是否继续?") {
+			return fmt.Errorf("用户取消卸载")
 		}
 	}
 
-	if err := app.cleanHosts(); err != nil {
-		log.Printf("警告: hosts清理失败 > %v", err)
+	if err := app.CleanHosts(); err != nil {
+		log.Printf("警告: 无法清理hosts文件: %v", err)
 	}
 
-	log.Println("所有配置已卸载")
+	certDir := settings.GetCertDir()
+	for _, f := range []string{"cert.pem", "key.pem"} {
+		path := filepath.Join(certDir, f)
+		if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+			log.Printf("警告: 无法删除证书文件 %s: %v", f, err)
+		}
+	}
+
+	log.Println("卸载完成")
 	return nil
 }
 
 func (app *App) Run() error {
-	if err := utils.CheckAdminPrivileges(); err != nil {
-		return err
-	}
-
 	if len(os.Args) < 2 {
-		app.printUsage()
+		app.PrintUsage()
 		return nil
 	}
 
-	switch os.Args[1] {
+	cmd := os.Args[1]
+	switch cmd {
 	case "server":
-		return app.runServer()
+		return app.RunServer()
 	case "install":
-		return app.runInstall()
+		return app.RunInstall()
 	case "uninstall":
-		return app.runUninstall()
+		return app.RunUninstall()
 	default:
-		app.printUsage()
-		return fmt.Errorf("无效的命令")
-	}
-}
-
-func main() {
-	if len(os.Args) > 1 && os.Args[1] == "gui" {
-		if err := runGUI(); err != nil {
-			log.Fatal(err)
-		}
-		return
-	}
-
-	app, err := NewApp()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if err := app.Run(); err != nil {
-		log.Fatal(err)
+		app.PrintUsage()
+		return fmt.Errorf("未知命令: %s", cmd)
 	}
 }

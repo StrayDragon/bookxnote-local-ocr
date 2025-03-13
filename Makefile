@@ -1,11 +1,13 @@
 .PHONY: all build prepare package clean
 
-# Get GOOS and GOARCH from go env
 GOOS ?= $(shell go env GOOS)
 GOARCH ?= $(shell go env GOARCH)
 
+CLI_NAME := bookxnote-local-ocr
+GUI_NAME := bookxnote-local-ocr-gui
+SERVER_NAME := server
+CERTGEN_NAME := certgen
 APP_NAME := bookxnote-local-ocr
-BINARIES := $(APP_NAME) server certgen
 
 # Set platform suffix and build directory
 PLATFORM_SUFFIX := $(GOOS)-$(GOARCH)
@@ -28,7 +30,7 @@ install-all-go-cmds:
 	go install github.com/zxmfke/swagger2openapi3/cmd/swag2op@latest # 0.1.1
 
 generate-gui-resources:
-	go generate ./cmd/bookxnote-local-ocr/
+	cd cmd/gui && go generate
 
 generate-api-doc:
 	mkdir -p internal/swagger-doc/openapi
@@ -52,10 +54,19 @@ generate: generate-gui-resources generate-api-doc generate-api-client
 build: clean
 	@echo "building..."
 	@mkdir -p $(BUILD_OUTPUT_DIR)
-	@for binary in $(BINARIES); do \
-		echo "building $$binary..."; \
-		go build -o $(BUILD_OUTPUT_DIR)/$$binary$(BINARY_SUFFIX) ./cmd/$$binary/...; \
-	done
+
+	@echo "building CLI..."
+	go build -o $(BUILD_OUTPUT_DIR)/$(CLI_NAME)$(BINARY_SUFFIX) ./cmd/cli/...
+
+	@echo "building GUI..."
+	go build -o $(BUILD_OUTPUT_DIR)/$(GUI_NAME)$(BINARY_SUFFIX) ./cmd/gui/...
+
+	@echo "building server..."
+	go build -o $(BUILD_OUTPUT_DIR)/$(SERVER_NAME)$(BINARY_SUFFIX) ./cmd/server/...
+
+	@echo "building certgen..."
+	go build -o $(BUILD_OUTPUT_DIR)/$(CERTGEN_NAME)$(BINARY_SUFFIX) ./cmd/certgen/...
+
 	@cp artifact/config.yml $(BUILD_OUTPUT_DIR)/
 
 prepare: build
@@ -84,7 +95,7 @@ dev-build: generate prepare evalate-linux-build-privilege
 	@echo "Done"
 
 dev-run-gui: dev-build
-	./build/bookxnote-local-ocr-linux-amd64/bookxnote-local-ocr gui
+	./build/bookxnote-local-ocr-linux-amd64/bookxnote-local-ocr-gui
 
 clean:
 	@echo "clean..."
