@@ -25,33 +25,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: testing win 7zip installed
-        if: matrix.os == 'windows-latest'
-        run: |
-          7z --help
-        shell: bash
-        continue-on-error: true
-
-      - name: testing win 7zip installed 2
-        if: matrix.os == 'windows-latest'
-        run: |
-          7zip --help
-        shell: bash
-        continue-on-error: true
-
-      - name: testing win 7zip installed 3
-        if: matrix.os == 'windows-latest'
-        run: |
-          7z.exe --help
-        shell: bash
-        continue-on-error: true
-
-      - name: testing win 7zip installed 4
-        if: matrix.os == 'windows-latest'
-        run: |
-          7zip.exe --help
-        shell: bash
-
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
