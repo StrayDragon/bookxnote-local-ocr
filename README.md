@@ -1,4 +1,8 @@
-# BookxNotePro 本地OCR服务方案
+## BookxNotePro 本地OCR服务方案
+
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/StrayDragon/bookxnote-local-ocr)](./go.mod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/straydragon/bookxnote-local-ocr)](https://goreportcard.com/report/github.com/straydragon/bookxnote-local-ocr)
+[![Release](https://img.shields.io/badge/Download-Windows%2FLinux-blue)](https://github.com/StrayDragon/bookxnote-local-ocr/releases)
 
 > [!warning]
 > 需要开通 [BookxNote](http://www.bookxnote.com/) 的高级会员才能配置使用
