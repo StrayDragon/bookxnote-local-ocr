@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"github.com/straydragon/bookxnote-local-ocr/internal/lib/langchain"
-	"github.com/straydragon/bookxnote-local-ocr/internal/lib/umiocr"
+	"github.com/straydragon/bookxnote-local-ocr/internal/lib/ocr"
 )
 
 // OCR后处理管理
@@ -62,7 +62,7 @@ func NewPostOCRProcessor() (*PostOCRProcessor, error) {
 }
 
 // ProcessOCRResult 处理OCR结果
-func (p *PostOCRProcessor) ProcessOCRResult(ctx context.Context, ocrResult *umiocr.APIRecognizeResp) (*umiocr.APIRecognizeResp, error) {
+func (p *PostOCRProcessor) ProcessOCRResult(ctx context.Context, ocrResult *ocr.OCRResult) (*ocr.OCRResult, error) {
 	if ocrResult == nil || len(ocrResult.Data) == 0 {
 		return ocrResult, nil
 	}
@@ -77,14 +77,13 @@ func (p *PostOCRProcessor) ProcessOCRResult(ctx context.Context, ocrResult *umio
 		return nil, fmt.Errorf("failed to process OCR text: %w", err)
 	}
 
-	result := &umiocr.APIRecognizeResp{
+	result := &ocr.OCRResult{
 		Code: ocrResult.Code,
-		Data: []umiocr.APIRecognizeRespData{
+		Data: []ocr.OCRTextBox{
 			{
-				Text:  processedText,
-				Score: 1.0,
-				Box:   [][2]int{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
-				End:   "",
+				Text:       processedText,
+				Confidence: 1.0,
+				Box:        [][2]int{{0, 0}, {0, 0}, {0, 0}, {0, 0}},
 			},
 		},
 	}

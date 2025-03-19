@@ -180,7 +180,7 @@ const docTemplate = `{
         },
         "/rest/2.0/ocr/v1/accurate_basic": {
             "post": {
-                "description": "使用UmiOCR识别图片中的文字",
+                "description": "使用OCR服务识别图片中的文字",
                 "consumes": [
                     "application/x-www-form-urlencoded"
                 ],

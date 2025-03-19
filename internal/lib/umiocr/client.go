@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/straydragon/bookxnote-local-ocr/internal/lib/ocr"
 )
 
 type Client struct {
@@ -18,25 +20,25 @@ func NewClient(baseURL string) *Client {
 	}
 }
 
-type APIRecognizeReq struct {
+type apiRecognizeReq struct {
 	Base64  string                 `json:"base64"`
 	Options map[string]interface{} `json:"options"`
 }
 
-type APIRecognizeRespData struct {
+type apiRecognizeRespData struct {
 	Text  string   `json:"text"`
 	Score float64  `json:"score"`
 	Box   [][2]int `json:"box"`
 	End   string   `json:"end"`
 }
 
-type APIRecognizeResp struct {
+type apiRecognizeResp struct {
 	Code int                    `json:"code"`
-	Data []APIRecognizeRespData `json:"data"`
+	Data []apiRecognizeRespData `json:"data"`
 }
 
-func (c *Client) Recognize(base64Image string) (*APIRecognizeResp, error) {
-	req := APIRecognizeReq{
+func (c *Client) Recognize(base64Image string) (*ocr.OCRResult, error) {
+	req := apiRecognizeReq{
 		Base64: base64Image,
 		Options: map[string]interface{}{
 			"data.format": "dict",
@@ -57,12 +59,26 @@ func (c *Client) Recognize(base64Image string) (*APIRecognizeResp, error) {
 	}
 	defer resp.Body.Close()
 
-	var result APIRecognizeResp
+	var result apiRecognizeResp
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("decode response failed: %w", err)
 	}
 
 	log.Printf("ocr result (raw: umi-ocr): %+v\n", result)
 
-	return &result, nil
+	// Convert to common OCR result type
+	commonResult := &ocr.OCRResult{
+		Code: result.Code,
+		Data: make([]ocr.OCRTextBox, len(result.Data)),
+	}
+
+	for i, item := range result.Data {
+		commonResult.Data[i] = ocr.OCRTextBox{
+			Text:       item.Text,
+			Confidence: item.Score,
+			Box:        item.Box,
+		}
+	}
+
+	return commonResult, nil
 }

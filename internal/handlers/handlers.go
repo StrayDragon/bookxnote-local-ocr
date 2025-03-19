@@ -78,7 +78,7 @@ func TokenHandler(c *gin.Context) {
 
 // AccurateOCRHandler 处理OCR请求(Hook Baidu OCR API)
 // @Summary 对图片进行OCR识别
-// @Description 使用UmiOCR识别图片中的文字
+// @Description 使用OCR服务识别图片中的文字
 // @Tags ocr
 // @Accept x-www-form-urlencoded
 // @Produce json
@@ -97,19 +97,13 @@ func TokenHandler(c *gin.Context) {
 func AccurateOCRHandler(c *gin.Context) {
 	svc := GetService(c)
 
-	// NOTE: 测试 BookxNote OCR 设置的超时时间, 可能连接成功后header中就有timeout, 但是懒得抓包23333
-	// for i := 1; i <= 60; i++ {
-	// 	log.Printf("OCR识别中, 已进行 %d 秒", i)
-	// 	time.Sleep(1 * time.Second)
-	// }
-
 	var req APIAccurateOCRReq
 	if err := c.ShouldBind(&req); err != nil {
 		c.JSON(400, ErrInvalidParamResp)
 		return
 	}
 
-	resp, err := svc.UmiOCRClient.Recognize(req.Image)
+	resp, err := svc.Recognize(req.Image)
 	if err != nil {
 		log.Printf("OCR识别失败: %v", err)
 		c.JSON(500, ErrInternalServerResp)
