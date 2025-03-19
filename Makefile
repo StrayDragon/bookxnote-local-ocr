@@ -17,7 +17,8 @@ ARCHIVE_NAME := $(APP_NAME)-$(PLATFORM_SUFFIX)
 ARCHIVE_EXT := $(if $(filter windows,$(GOOS)),.zip,.tar.gz)
 BINARY_SUFFIX := $(if $(filter windows,$(GOOS)),.exe,)
 
-OPENAPI_OUTPUT_DIR:=internal/client/openapi
+API_CLIENT_NAME:=inner_server
+API_CLIENT_OUTPUT_DIR:=internal/client/$(API_CLIENT_NAME)
 OPENAPI_CLEANUP_FILES:=docs test .openapi-generator .gitignore .travis.yml git_push.sh .openapi-generator-ignore api
 
 all: package
@@ -41,12 +42,13 @@ generate-api-doc:
 		-openo internal/swagger-doc/openapi
 
 generate-api-client: generate-api-doc
-	mkdir -p $(OPENAPI_OUTPUT_DIR)
+	rm -rf $(API_CLIENT_OUTPUT_DIR)
+	mkdir -p $(API_CLIENT_OUTPUT_DIR)
 	uvx openapi-generator-cli generate -i internal/swagger-doc/openapi/swagger.yaml \
-		-g go -o $(OPENAPI_OUTPUT_DIR) \
+		-g go -o $(API_CLIENT_OUTPUT_DIR) \
 		--skip-validate-spec \
-		--additional-properties=disallowAdditionalPropertiesIfNotPresent=false,enumClassPrefix=true,structPrefix=true,generateInterfaces=true,isGoSubmodule=true,withGoMod=false
-	rm -rf $(addprefix $(OPENAPI_OUTPUT_DIR)/,$(OPENAPI_CLEANUP_FILES))
+		--additional-properties=disallowAdditionalPropertiesIfNotPresent=false,enumClassPrefix=true,structPrefix=true,generateInterfaces=true,isGoSubmodule=true,withGoMod=false,packageName=$(API_CLIENT_NAME)
+	rm -rf $(addprefix $(API_CLIENT_OUTPUT_DIR)/,$(OPENAPI_CLEANUP_FILES))
 
 generate: generate-gui-resources generate-api-doc generate-api-client
 	@echo "generated"
