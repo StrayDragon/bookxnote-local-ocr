@@ -11,6 +11,8 @@
 
 ![图片](https://github.com/user-attachments/assets/c32b2c54-f678-4865-b7dc-dda607f09787)
 
+同时支持接入用户自定义 OCR API 服务, 只需要实现本项目标准化的OCR服务接口规范([OpenAPI Schema](openapi/ocr-schema.yaml))
+
 除了基础的本地OCR识别, 可以配置 **OpenAI (兼容的)API** 来解锁基于大模型能力的OCR后处理功能!
 
 内置多种实用模板:

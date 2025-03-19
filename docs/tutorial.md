@@ -105,6 +105,21 @@ OCR识别后的文本可能存在不必要的换行或格式问题，启用此�
 
 3. 使用GUI模式时，可以通过托盘菜单快速开启/关闭这些功能。
 
+# 配置支持本项目标准化的OCR服务接口规范的服务
+
+使用自定义OCR服务, 你需要检查或适配 [openapi spec](../openapi/bookxnote-local-ocr.yaml), 并且运行你的服务
+
+同时需要修改该应用的配置文件如：
+
+```yaml
+ocr:
+  selected: "custom"
+  custom:
+    api_base_url: "http://<you-api-base-url>"
+    api_key: "your-api-key-here"
+  # ...
+```
+
 # 卸载
 
 在解压后的目录中运行以下命令
