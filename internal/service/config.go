@@ -59,8 +59,8 @@ type ConfigOCRUmiOCR struct {
 }
 
 type ConfigOCRCustom struct {
-	APIURL string `mapstructure:"api_url"`
-	APIKey string `mapstructure:"api_key"`
+	APIBaseUrl string `mapstructure:"api_base_url"`
+	APIKey     string `mapstructure:"api_key"`
 }
 
 type ConfigOCR struct {

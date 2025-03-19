@@ -6,7 +6,7 @@ ocr:
     api_url: "http://127.0.0.1:1224"
 
   custom:
-    api_url: "http://127.0.0.1:40123"
+    api_base_url: "http://127.0.0.1:40123"
     api_key: "your-api-key-here"
 
 # LLM 服务配置

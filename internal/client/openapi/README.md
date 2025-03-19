@@ -96,7 +96,7 @@ Class | Method | HTTP request | Description
 
 
 Authentication schemes defined for the API:
-### bearerAuth
+### ApiKeyAuth
 
 - **Type**: HTTP Bearer token authentication
 

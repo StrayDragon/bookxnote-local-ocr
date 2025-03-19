@@ -6,11 +6,14 @@ info:
   version: 1.0.0
 
 servers:
-  - url: http://localhost:40123
-    description: 本地服务端测试地址
+  - url: "{api_url}"
+    variables:
+      api_url:
+        default: http://localhost:40123
+        description: 自定义 API 服务器 URL
 
 security:
-  - bearerAuth: []
+  - ApiKeyAuth: []
 
 paths:
   /v1/ocr_by_bxn_local_ocr:
@@ -130,9 +133,8 @@ components:
           additionalProperties: true
 
   securitySchemes:
-    bearerAuth:
+    ApiKeyAuth:
       type: http
       scheme: bearer
-      description: |
-        使用Bearer认证（JWT）和API密钥。
-        示例：'Authorization: Bearer your-api-key-here'
+      bearerFormat: JWT # optional, arbitrary value for documentation purposes
+

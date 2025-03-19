@@ -93,8 +93,14 @@ func NewConfiguration() *Configuration {
 		Debug:            false,
 		Servers:          ServerConfigurations{
 			{
-				URL: "http://localhost:40123",
-				Description: "本地服务端测试地址",
+				URL: "{api_url}",
+				Description: "No description provided",
+				Variables: map[string]ServerVariable{
+					"api_url": ServerVariable{
+						Description: "自定义 API 服务器 URL",
+						DefaultValue: "http://localhost:40123",
+					},
+				},
 			},
 		},
 		OperationServers: map[string]ServerConfigurations{

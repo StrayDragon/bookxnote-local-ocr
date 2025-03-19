@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/straydragon/bookxnote-local-ocr/internal/lib/customocr"
 	"github.com/straydragon/bookxnote-local-ocr/internal/lib/ocr"
@@ -46,10 +47,13 @@ func NewService() (*Service, error) {
 		}
 		ocrClient = umiocr.NewClient(config.OCR.UmiOCR.APIURL)
 	case "custom":
-		if config.OCR.Custom == nil || config.OCR.Custom.APIURL == "" {
+		baseUrl, key := config.OCR.Custom.APIBaseUrl, config.OCR.Custom.APIKey
+		if baseUrl == "" || key == "" {
 			return nil, fmt.Errorf("Custom OCR configuration is missing or invalid")
 		}
-		ocrClient = customocr.NewClient(config.OCR.Custom.APIURL, config.OCR.Custom.APIKey)
+
+		baseUrl = strings.TrimSuffix(baseUrl, "/")
+		ocrClient = customocr.NewClient(baseUrl, key)
 	default:
 		return nil, fmt.Errorf("unsupported OCR service: %s", config.OCR.Selected)
 	}
