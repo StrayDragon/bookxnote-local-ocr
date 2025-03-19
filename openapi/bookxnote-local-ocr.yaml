@@ -1,0 +1,138 @@
+openapi: 3.0.0
+info:
+  title: BookxNote Local OCR API
+  description: |
+    BookxNote 本地 OCR 服务 API
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:40123
+    description: 本地服务端测试地址
+
+security:
+  - bearerAuth: []
+
+paths:
+  /v1/ocr_by_bxn_local_ocr:
+    post:
+      summary: 执行图片OCR识别
+      description: 上传图片并返回OCR识别结果
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                base64_image:
+                  type: string
+                  format: byte
+                  description: Base64编码的图片数据
+              required: [image_base64_text]
+      responses:
+        "200":
+          description: OCR识别成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 状态码，0表示成功
+                  msg:
+                    type: string
+                    description: 状态信息
+                  data:
+                    type: object
+                    properties:
+                      text:
+                        type: string
+                        description: 识别出的文本内容
+                      confidence:
+                        type: number
+                        format: float
+                        description: 识别结果的置信度 (0-1)
+                      time_cost:
+                        type: number
+                        format: float
+                        description: OCR处理耗时(秒)
+        "400":
+          description: 请求参数错误
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 错误码
+                  msg:
+                    type: string
+                    description: 错误信息描述
+        "500":
+          description: 服务器内部错误
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: 错误码
+                  msg:
+                    type: string
+                    description: 错误信息描述
+
+components:
+  schemas:
+    ImageRequest:
+      type: object
+      required:
+        - image_base64
+      properties:
+        image_base64:
+          type: string
+          format: byte
+          description: Base64编码的图片内容（支持PNG/JPG格式）
+          example: "iVBORw0KGgoAAAANSUhEUgAA..."
+        config:
+          type: object
+          additionalProperties: true
+          description: |
+            服务特定的配置参数。
+            实现者可以定义自己的键值对。
+          example:
+            language: "eng+chi_sim"
+            rotate: 90
+            density: 300
+
+    OCRResult:
+      type: object
+      required:
+        - text
+      properties:
+        text:
+          type: string
+          description: 识别出的文本内容
+          example: "Hello World\n第二行文本"
+        metadata:
+          type: object
+          properties:
+            processing_time:
+              type: number
+              format: float
+              description: 处理时间（秒）
+            confidence:
+              type: number
+              format: float
+              description: 整体置信度得分（0-1）
+          additionalProperties: true
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: |
+        使用Bearer认证（JWT）和API密钥。
+        示例：'Authorization: Bearer your-api-key-here'

@@ -24,7 +24,7 @@ type OcrAPI interface {
 	/*
 	Rest20OcrV1AccurateBasicPost 对图片进行OCR识别
 
-	使用UmiOCR识别图片中的文字
+	使用OCR服务识别图片中的文字
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 	@return OcrAPIRest20OcrV1AccurateBasicPostRequest
@@ -107,7 +107,7 @@ func (r OcrAPIRest20OcrV1AccurateBasicPostRequest) Execute() (*HandlersAPIAccura
 /*
 Rest20OcrV1AccurateBasicPost 对图片进行OCR识别
 
-使用UmiOCR识别图片中的文字
+使用OCR服务识别图片中的文字
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return OcrAPIRest20OcrV1AccurateBasicPostRequest
