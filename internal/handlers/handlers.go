@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -102,6 +103,8 @@ func AccurateOCRHandler(c *gin.Context) {
 		c.JSON(400, ErrInvalidParamResp)
 		return
 	}
+
+	fmt.Println(req.Image)
 
 	resp, err := svc.Recognize(req.Image)
 	if err != nil {

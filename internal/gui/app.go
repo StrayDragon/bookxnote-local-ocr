@@ -128,19 +128,19 @@ func (g *GUIApp) setupUI() {
 	})
 	g.serverSwitch.SetChecked(g.serverProcess != nil)
 
-	installBtn := widget.NewButton(t("ui.installConfig"), func() {
-		go g.handleInstallConfig()
-	})
+	// installBtn := widget.NewButton(t("ui.installConfig"), func() {
+	// 	go g.handleInstallConfig()
+	// })
 
-	uninstallBtn := widget.NewButton(t("ui.uninstallConfig"), func() {
-		go g.handleUninstallConfig()
-	})
+	// uninstallBtn := widget.NewButton(t("ui.uninstallConfig"), func() {
+	// 	go g.handleUninstallConfig()
+	// })
 
 	content := container.NewVBox(
 		statusLabel,
 		g.serverSwitch,
-		installBtn,
-		uninstallBtn,
+		// installBtn,
+		// uninstallBtn,
 	)
 
 	g.window.SetContent(content)
