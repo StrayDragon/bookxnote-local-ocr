@@ -10,4 +10,8 @@ SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
 setcap CAP_NET_BIND_SERVICE=+eip "$SCRIPT_DIR/server"
 setcap 'CAP_DAC_OVERRIDE,CAP_SYS_ADMIN+ep' "$SCRIPT_DIR/certgen"
 
+echo "ensure caps"
+getcap "$SCRIPT_DIR/server"
+getcap "$SCRIPT_DIR/certgen"
+
 echo "privileges set successfully"
