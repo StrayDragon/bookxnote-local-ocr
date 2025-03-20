@@ -18,6 +18,7 @@ security:
 paths:
   /v1/ocr_by_bxn_local_ocr:
     post:
+      operationId: post_ocr_by_bxn_local_ocr
       summary: 执行图片OCR识别
       description: 上传图片并返回OCR识别结果
       requestBody:

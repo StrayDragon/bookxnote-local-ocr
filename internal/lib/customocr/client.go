@@ -20,7 +20,7 @@ func NewClient(baseURL string, apiKey string) *Client {
 			URL: baseURL,
 		},
 	}
-	config.AddDefaultHeader("X-API-Key", apiKey)
+	config.AddDefaultHeader("Authorization", "Bearer "+apiKey)
 
 	return &Client{
 		apiClient: openapi.NewAPIClient(config),
@@ -31,7 +31,7 @@ func (c *Client) Recognize(base64Image string) (*ocr.OCRResult, error) {
 	ctx := context.Background()
 
 	// Make the API call directly with the base64 string
-	resp, _, err := c.apiClient.DefaultAPI.V1OcrByBxnLocalOcrPost(ctx).Base64Image(base64Image).Execute()
+	resp, _, err := c.apiClient.DefaultAPI.PostOcrByBxnLocalOcr(ctx).Base64Image(base64Image).Execute()
 	if err != nil {
 		return nil, fmt.Errorf("call OCR service failed: %w", err)
 	}

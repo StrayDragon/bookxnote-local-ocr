@@ -14,11 +14,11 @@ import (
 	"encoding/json"
 )
 
-// checks if the V1OcrByBxnLocalOcrPost200ResponseData type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &V1OcrByBxnLocalOcrPost200ResponseData{}
+// checks if the PostOcrByBxnLocalOcr200ResponseData type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &PostOcrByBxnLocalOcr200ResponseData{}
 
-// V1OcrByBxnLocalOcrPost200ResponseData struct for V1OcrByBxnLocalOcrPost200ResponseData
-type V1OcrByBxnLocalOcrPost200ResponseData struct {
+// PostOcrByBxnLocalOcr200ResponseData struct for PostOcrByBxnLocalOcr200ResponseData
+type PostOcrByBxnLocalOcr200ResponseData struct {
 	// 识别出的文本内容
 	Text *string `json:"text,omitempty"`
 	// 识别结果的置信度 (0-1)
@@ -28,27 +28,27 @@ type V1OcrByBxnLocalOcrPost200ResponseData struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _V1OcrByBxnLocalOcrPost200ResponseData V1OcrByBxnLocalOcrPost200ResponseData
+type _PostOcrByBxnLocalOcr200ResponseData PostOcrByBxnLocalOcr200ResponseData
 
-// NewV1OcrByBxnLocalOcrPost200ResponseData instantiates a new V1OcrByBxnLocalOcrPost200ResponseData object
+// NewPostOcrByBxnLocalOcr200ResponseData instantiates a new PostOcrByBxnLocalOcr200ResponseData object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewV1OcrByBxnLocalOcrPost200ResponseData() *V1OcrByBxnLocalOcrPost200ResponseData {
-	this := V1OcrByBxnLocalOcrPost200ResponseData{}
+func NewPostOcrByBxnLocalOcr200ResponseData() *PostOcrByBxnLocalOcr200ResponseData {
+	this := PostOcrByBxnLocalOcr200ResponseData{}
 	return &this
 }
 
-// NewV1OcrByBxnLocalOcrPost200ResponseDataWithDefaults instantiates a new V1OcrByBxnLocalOcrPost200ResponseData object
+// NewPostOcrByBxnLocalOcr200ResponseDataWithDefaults instantiates a new PostOcrByBxnLocalOcr200ResponseData object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewV1OcrByBxnLocalOcrPost200ResponseDataWithDefaults() *V1OcrByBxnLocalOcrPost200ResponseData {
-	this := V1OcrByBxnLocalOcrPost200ResponseData{}
+func NewPostOcrByBxnLocalOcr200ResponseDataWithDefaults() *PostOcrByBxnLocalOcr200ResponseData {
+	this := PostOcrByBxnLocalOcr200ResponseData{}
 	return &this
 }
 
 // GetText returns the Text field value if set, zero value otherwise.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetText() string {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetText() string {
 	if o == nil || IsNil(o.Text) {
 		var ret string
 		return ret
@@ -58,7 +58,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetText() string {
 
 // GetTextOk returns a tuple with the Text field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTextOk() (*string, bool) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetTextOk() (*string, bool) {
 	if o == nil || IsNil(o.Text) {
 		return nil, false
 	}
@@ -66,7 +66,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTextOk() (*string, bool) {
 }
 
 // HasText returns a boolean if a field has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasText() bool {
+func (o *PostOcrByBxnLocalOcr200ResponseData) HasText() bool {
 	if o != nil && !IsNil(o.Text) {
 		return true
 	}
@@ -75,12 +75,12 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasText() bool {
 }
 
 // SetText gets a reference to the given string and assigns it to the Text field.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) SetText(v string) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) SetText(v string) {
 	o.Text = &v
 }
 
 // GetConfidence returns the Confidence field value if set, zero value otherwise.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetConfidence() float32 {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetConfidence() float32 {
 	if o == nil || IsNil(o.Confidence) {
 		var ret float32
 		return ret
@@ -90,7 +90,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetConfidence() float32 {
 
 // GetConfidenceOk returns a tuple with the Confidence field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetConfidenceOk() (*float32, bool) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetConfidenceOk() (*float32, bool) {
 	if o == nil || IsNil(o.Confidence) {
 		return nil, false
 	}
@@ -98,7 +98,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetConfidenceOk() (*float32, boo
 }
 
 // HasConfidence returns a boolean if a field has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasConfidence() bool {
+func (o *PostOcrByBxnLocalOcr200ResponseData) HasConfidence() bool {
 	if o != nil && !IsNil(o.Confidence) {
 		return true
 	}
@@ -107,12 +107,12 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasConfidence() bool {
 }
 
 // SetConfidence gets a reference to the given float32 and assigns it to the Confidence field.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) SetConfidence(v float32) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) SetConfidence(v float32) {
 	o.Confidence = &v
 }
 
 // GetTimeCost returns the TimeCost field value if set, zero value otherwise.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTimeCost() float32 {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetTimeCost() float32 {
 	if o == nil || IsNil(o.TimeCost) {
 		var ret float32
 		return ret
@@ -122,7 +122,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTimeCost() float32 {
 
 // GetTimeCostOk returns a tuple with the TimeCost field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTimeCostOk() (*float32, bool) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) GetTimeCostOk() (*float32, bool) {
 	if o == nil || IsNil(o.TimeCost) {
 		return nil, false
 	}
@@ -130,7 +130,7 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) GetTimeCostOk() (*float32, bool)
 }
 
 // HasTimeCost returns a boolean if a field has been set.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasTimeCost() bool {
+func (o *PostOcrByBxnLocalOcr200ResponseData) HasTimeCost() bool {
 	if o != nil && !IsNil(o.TimeCost) {
 		return true
 	}
@@ -139,11 +139,11 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) HasTimeCost() bool {
 }
 
 // SetTimeCost gets a reference to the given float32 and assigns it to the TimeCost field.
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) SetTimeCost(v float32) {
+func (o *PostOcrByBxnLocalOcr200ResponseData) SetTimeCost(v float32) {
 	o.TimeCost = &v
 }
 
-func (o V1OcrByBxnLocalOcrPost200ResponseData) MarshalJSON() ([]byte, error) {
+func (o PostOcrByBxnLocalOcr200ResponseData) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -151,7 +151,7 @@ func (o V1OcrByBxnLocalOcrPost200ResponseData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o V1OcrByBxnLocalOcrPost200ResponseData) ToMap() (map[string]interface{}, error) {
+func (o PostOcrByBxnLocalOcr200ResponseData) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Text) {
 		toSerialize["text"] = o.Text
@@ -170,16 +170,16 @@ func (o V1OcrByBxnLocalOcrPost200ResponseData) ToMap() (map[string]interface{}, 
 	return toSerialize, nil
 }
 
-func (o *V1OcrByBxnLocalOcrPost200ResponseData) UnmarshalJSON(data []byte) (err error) {
-	varV1OcrByBxnLocalOcrPost200ResponseData := _V1OcrByBxnLocalOcrPost200ResponseData{}
+func (o *PostOcrByBxnLocalOcr200ResponseData) UnmarshalJSON(data []byte) (err error) {
+	varPostOcrByBxnLocalOcr200ResponseData := _PostOcrByBxnLocalOcr200ResponseData{}
 
-	err = json.Unmarshal(data, &varV1OcrByBxnLocalOcrPost200ResponseData)
+	err = json.Unmarshal(data, &varPostOcrByBxnLocalOcr200ResponseData)
 
 	if err != nil {
 		return err
 	}
 
-	*o = V1OcrByBxnLocalOcrPost200ResponseData(varV1OcrByBxnLocalOcrPost200ResponseData)
+	*o = PostOcrByBxnLocalOcr200ResponseData(varPostOcrByBxnLocalOcr200ResponseData)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -193,38 +193,38 @@ func (o *V1OcrByBxnLocalOcrPost200ResponseData) UnmarshalJSON(data []byte) (err 
 	return err
 }
 
-type NullableV1OcrByBxnLocalOcrPost200ResponseData struct {
-	value *V1OcrByBxnLocalOcrPost200ResponseData
+type NullablePostOcrByBxnLocalOcr200ResponseData struct {
+	value *PostOcrByBxnLocalOcr200ResponseData
 	isSet bool
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost200ResponseData) Get() *V1OcrByBxnLocalOcrPost200ResponseData {
+func (v NullablePostOcrByBxnLocalOcr200ResponseData) Get() *PostOcrByBxnLocalOcr200ResponseData {
 	return v.value
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost200ResponseData) Set(val *V1OcrByBxnLocalOcrPost200ResponseData) {
+func (v *NullablePostOcrByBxnLocalOcr200ResponseData) Set(val *PostOcrByBxnLocalOcr200ResponseData) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost200ResponseData) IsSet() bool {
+func (v NullablePostOcrByBxnLocalOcr200ResponseData) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost200ResponseData) Unset() {
+func (v *NullablePostOcrByBxnLocalOcr200ResponseData) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableV1OcrByBxnLocalOcrPost200ResponseData(val *V1OcrByBxnLocalOcrPost200ResponseData) *NullableV1OcrByBxnLocalOcrPost200ResponseData {
-	return &NullableV1OcrByBxnLocalOcrPost200ResponseData{value: val, isSet: true}
+func NewNullablePostOcrByBxnLocalOcr200ResponseData(val *PostOcrByBxnLocalOcr200ResponseData) *NullablePostOcrByBxnLocalOcr200ResponseData {
+	return &NullablePostOcrByBxnLocalOcr200ResponseData{value: val, isSet: true}
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost200ResponseData) MarshalJSON() ([]byte, error) {
+func (v NullablePostOcrByBxnLocalOcr200ResponseData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost200ResponseData) UnmarshalJSON(src []byte) error {
+func (v *NullablePostOcrByBxnLocalOcr200ResponseData) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

@@ -14,11 +14,11 @@ import (
 	"encoding/json"
 )
 
-// checks if the V1OcrByBxnLocalOcrPost400Response type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &V1OcrByBxnLocalOcrPost400Response{}
+// checks if the PostOcrByBxnLocalOcr400Response type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &PostOcrByBxnLocalOcr400Response{}
 
-// V1OcrByBxnLocalOcrPost400Response struct for V1OcrByBxnLocalOcrPost400Response
-type V1OcrByBxnLocalOcrPost400Response struct {
+// PostOcrByBxnLocalOcr400Response struct for PostOcrByBxnLocalOcr400Response
+type PostOcrByBxnLocalOcr400Response struct {
 	// 错误码
 	Code *int32 `json:"code,omitempty"`
 	// 错误信息描述
@@ -26,27 +26,27 @@ type V1OcrByBxnLocalOcrPost400Response struct {
 	AdditionalProperties map[string]interface{}
 }
 
-type _V1OcrByBxnLocalOcrPost400Response V1OcrByBxnLocalOcrPost400Response
+type _PostOcrByBxnLocalOcr400Response PostOcrByBxnLocalOcr400Response
 
-// NewV1OcrByBxnLocalOcrPost400Response instantiates a new V1OcrByBxnLocalOcrPost400Response object
+// NewPostOcrByBxnLocalOcr400Response instantiates a new PostOcrByBxnLocalOcr400Response object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewV1OcrByBxnLocalOcrPost400Response() *V1OcrByBxnLocalOcrPost400Response {
-	this := V1OcrByBxnLocalOcrPost400Response{}
+func NewPostOcrByBxnLocalOcr400Response() *PostOcrByBxnLocalOcr400Response {
+	this := PostOcrByBxnLocalOcr400Response{}
 	return &this
 }
 
-// NewV1OcrByBxnLocalOcrPost400ResponseWithDefaults instantiates a new V1OcrByBxnLocalOcrPost400Response object
+// NewPostOcrByBxnLocalOcr400ResponseWithDefaults instantiates a new PostOcrByBxnLocalOcr400Response object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewV1OcrByBxnLocalOcrPost400ResponseWithDefaults() *V1OcrByBxnLocalOcrPost400Response {
-	this := V1OcrByBxnLocalOcrPost400Response{}
+func NewPostOcrByBxnLocalOcr400ResponseWithDefaults() *PostOcrByBxnLocalOcr400Response {
+	this := PostOcrByBxnLocalOcr400Response{}
 	return &this
 }
 
 // GetCode returns the Code field value if set, zero value otherwise.
-func (o *V1OcrByBxnLocalOcrPost400Response) GetCode() int32 {
+func (o *PostOcrByBxnLocalOcr400Response) GetCode() int32 {
 	if o == nil || IsNil(o.Code) {
 		var ret int32
 		return ret
@@ -56,7 +56,7 @@ func (o *V1OcrByBxnLocalOcrPost400Response) GetCode() int32 {
 
 // GetCodeOk returns a tuple with the Code field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *V1OcrByBxnLocalOcrPost400Response) GetCodeOk() (*int32, bool) {
+func (o *PostOcrByBxnLocalOcr400Response) GetCodeOk() (*int32, bool) {
 	if o == nil || IsNil(o.Code) {
 		return nil, false
 	}
@@ -64,7 +64,7 @@ func (o *V1OcrByBxnLocalOcrPost400Response) GetCodeOk() (*int32, bool) {
 }
 
 // HasCode returns a boolean if a field has been set.
-func (o *V1OcrByBxnLocalOcrPost400Response) HasCode() bool {
+func (o *PostOcrByBxnLocalOcr400Response) HasCode() bool {
 	if o != nil && !IsNil(o.Code) {
 		return true
 	}
@@ -73,12 +73,12 @@ func (o *V1OcrByBxnLocalOcrPost400Response) HasCode() bool {
 }
 
 // SetCode gets a reference to the given int32 and assigns it to the Code field.
-func (o *V1OcrByBxnLocalOcrPost400Response) SetCode(v int32) {
+func (o *PostOcrByBxnLocalOcr400Response) SetCode(v int32) {
 	o.Code = &v
 }
 
 // GetMsg returns the Msg field value if set, zero value otherwise.
-func (o *V1OcrByBxnLocalOcrPost400Response) GetMsg() string {
+func (o *PostOcrByBxnLocalOcr400Response) GetMsg() string {
 	if o == nil || IsNil(o.Msg) {
 		var ret string
 		return ret
@@ -88,7 +88,7 @@ func (o *V1OcrByBxnLocalOcrPost400Response) GetMsg() string {
 
 // GetMsgOk returns a tuple with the Msg field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *V1OcrByBxnLocalOcrPost400Response) GetMsgOk() (*string, bool) {
+func (o *PostOcrByBxnLocalOcr400Response) GetMsgOk() (*string, bool) {
 	if o == nil || IsNil(o.Msg) {
 		return nil, false
 	}
@@ -96,7 +96,7 @@ func (o *V1OcrByBxnLocalOcrPost400Response) GetMsgOk() (*string, bool) {
 }
 
 // HasMsg returns a boolean if a field has been set.
-func (o *V1OcrByBxnLocalOcrPost400Response) HasMsg() bool {
+func (o *PostOcrByBxnLocalOcr400Response) HasMsg() bool {
 	if o != nil && !IsNil(o.Msg) {
 		return true
 	}
@@ -105,11 +105,11 @@ func (o *V1OcrByBxnLocalOcrPost400Response) HasMsg() bool {
 }
 
 // SetMsg gets a reference to the given string and assigns it to the Msg field.
-func (o *V1OcrByBxnLocalOcrPost400Response) SetMsg(v string) {
+func (o *PostOcrByBxnLocalOcr400Response) SetMsg(v string) {
 	o.Msg = &v
 }
 
-func (o V1OcrByBxnLocalOcrPost400Response) MarshalJSON() ([]byte, error) {
+func (o PostOcrByBxnLocalOcr400Response) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -117,7 +117,7 @@ func (o V1OcrByBxnLocalOcrPost400Response) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o V1OcrByBxnLocalOcrPost400Response) ToMap() (map[string]interface{}, error) {
+func (o PostOcrByBxnLocalOcr400Response) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	if !IsNil(o.Code) {
 		toSerialize["code"] = o.Code
@@ -133,16 +133,16 @@ func (o V1OcrByBxnLocalOcrPost400Response) ToMap() (map[string]interface{}, erro
 	return toSerialize, nil
 }
 
-func (o *V1OcrByBxnLocalOcrPost400Response) UnmarshalJSON(data []byte) (err error) {
-	varV1OcrByBxnLocalOcrPost400Response := _V1OcrByBxnLocalOcrPost400Response{}
+func (o *PostOcrByBxnLocalOcr400Response) UnmarshalJSON(data []byte) (err error) {
+	varPostOcrByBxnLocalOcr400Response := _PostOcrByBxnLocalOcr400Response{}
 
-	err = json.Unmarshal(data, &varV1OcrByBxnLocalOcrPost400Response)
+	err = json.Unmarshal(data, &varPostOcrByBxnLocalOcr400Response)
 
 	if err != nil {
 		return err
 	}
 
-	*o = V1OcrByBxnLocalOcrPost400Response(varV1OcrByBxnLocalOcrPost400Response)
+	*o = PostOcrByBxnLocalOcr400Response(varPostOcrByBxnLocalOcr400Response)
 
 	additionalProperties := make(map[string]interface{})
 
@@ -155,38 +155,38 @@ func (o *V1OcrByBxnLocalOcrPost400Response) UnmarshalJSON(data []byte) (err erro
 	return err
 }
 
-type NullableV1OcrByBxnLocalOcrPost400Response struct {
-	value *V1OcrByBxnLocalOcrPost400Response
+type NullablePostOcrByBxnLocalOcr400Response struct {
+	value *PostOcrByBxnLocalOcr400Response
 	isSet bool
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost400Response) Get() *V1OcrByBxnLocalOcrPost400Response {
+func (v NullablePostOcrByBxnLocalOcr400Response) Get() *PostOcrByBxnLocalOcr400Response {
 	return v.value
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost400Response) Set(val *V1OcrByBxnLocalOcrPost400Response) {
+func (v *NullablePostOcrByBxnLocalOcr400Response) Set(val *PostOcrByBxnLocalOcr400Response) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost400Response) IsSet() bool {
+func (v NullablePostOcrByBxnLocalOcr400Response) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost400Response) Unset() {
+func (v *NullablePostOcrByBxnLocalOcr400Response) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableV1OcrByBxnLocalOcrPost400Response(val *V1OcrByBxnLocalOcrPost400Response) *NullableV1OcrByBxnLocalOcrPost400Response {
-	return &NullableV1OcrByBxnLocalOcrPost400Response{value: val, isSet: true}
+func NewNullablePostOcrByBxnLocalOcr400Response(val *PostOcrByBxnLocalOcr400Response) *NullablePostOcrByBxnLocalOcr400Response {
+	return &NullablePostOcrByBxnLocalOcr400Response{value: val, isSet: true}
 }
 
-func (v NullableV1OcrByBxnLocalOcrPost400Response) MarshalJSON() ([]byte, error) {
+func (v NullablePostOcrByBxnLocalOcr400Response) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableV1OcrByBxnLocalOcrPost400Response) UnmarshalJSON(src []byte) error {
+func (v *NullablePostOcrByBxnLocalOcr400Response) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

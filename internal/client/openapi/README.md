@@ -79,7 +79,7 @@ All URIs are relative to *http://localhost:40123*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
-*DefaultAPI* | [**V1OcrByBxnLocalOcrPost**](docs/DefaultAPI.md#v1ocrbybxnlocalocrpost) | **Post** /v1/ocr_by_bxn_local_ocr | 执行图片OCR识别
+*DefaultAPI* | [**PostOcrByBxnLocalOcr**](docs/DefaultAPI.md#postocrbybxnlocalocr) | **Post** /v1/ocr_by_bxn_local_ocr | 执行图片OCR识别
 
 
 ## Documentation For Models
@@ -87,9 +87,9 @@ Class | Method | HTTP request | Description
  - [ImageRequest](docs/ImageRequest.md)
  - [OCRResult](docs/OCRResult.md)
  - [OCRResultMetadata](docs/OCRResultMetadata.md)
- - [V1OcrByBxnLocalOcrPost200Response](docs/V1OcrByBxnLocalOcrPost200Response.md)
- - [V1OcrByBxnLocalOcrPost200ResponseData](docs/V1OcrByBxnLocalOcrPost200ResponseData.md)
- - [V1OcrByBxnLocalOcrPost400Response](docs/V1OcrByBxnLocalOcrPost400Response.md)
+ - [PostOcrByBxnLocalOcr200Response](docs/PostOcrByBxnLocalOcr200Response.md)
+ - [PostOcrByBxnLocalOcr200ResponseData](docs/PostOcrByBxnLocalOcr200ResponseData.md)
+ - [PostOcrByBxnLocalOcr400Response](docs/PostOcrByBxnLocalOcr400Response.md)
 
 
 ## Documentation For Authorization

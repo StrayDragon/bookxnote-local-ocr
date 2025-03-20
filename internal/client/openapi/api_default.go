@@ -22,65 +22,65 @@ import (
 type DefaultAPI interface {
 
 	/*
-	V1OcrByBxnLocalOcrPost 执行图片OCR识别
+	PostOcrByBxnLocalOcr 执行图片OCR识别
 
 	上传图片并返回OCR识别结果
 
 	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return DefaultAPIV1OcrByBxnLocalOcrPostRequest
+	@return DefaultAPIPostOcrByBxnLocalOcrRequest
 	*/
-	V1OcrByBxnLocalOcrPost(ctx context.Context) DefaultAPIV1OcrByBxnLocalOcrPostRequest
+	PostOcrByBxnLocalOcr(ctx context.Context) DefaultAPIPostOcrByBxnLocalOcrRequest
 
-	// V1OcrByBxnLocalOcrPostExecute executes the request
-	//  @return V1OcrByBxnLocalOcrPost200Response
-	V1OcrByBxnLocalOcrPostExecute(r DefaultAPIV1OcrByBxnLocalOcrPostRequest) (*V1OcrByBxnLocalOcrPost200Response, *http.Response, error)
+	// PostOcrByBxnLocalOcrExecute executes the request
+	//  @return PostOcrByBxnLocalOcr200Response
+	PostOcrByBxnLocalOcrExecute(r DefaultAPIPostOcrByBxnLocalOcrRequest) (*PostOcrByBxnLocalOcr200Response, *http.Response, error)
 }
 
 // DefaultAPIService DefaultAPI service
 type DefaultAPIService service
 
-type DefaultAPIV1OcrByBxnLocalOcrPostRequest struct {
+type DefaultAPIPostOcrByBxnLocalOcrRequest struct {
 	ctx context.Context
 	ApiService DefaultAPI
 	base64Image *string
 }
 
 // Base64编码的图片数据
-func (r DefaultAPIV1OcrByBxnLocalOcrPostRequest) Base64Image(base64Image string) DefaultAPIV1OcrByBxnLocalOcrPostRequest {
+func (r DefaultAPIPostOcrByBxnLocalOcrRequest) Base64Image(base64Image string) DefaultAPIPostOcrByBxnLocalOcrRequest {
 	r.base64Image = &base64Image
 	return r
 }
 
-func (r DefaultAPIV1OcrByBxnLocalOcrPostRequest) Execute() (*V1OcrByBxnLocalOcrPost200Response, *http.Response, error) {
-	return r.ApiService.V1OcrByBxnLocalOcrPostExecute(r)
+func (r DefaultAPIPostOcrByBxnLocalOcrRequest) Execute() (*PostOcrByBxnLocalOcr200Response, *http.Response, error) {
+	return r.ApiService.PostOcrByBxnLocalOcrExecute(r)
 }
 
 /*
-V1OcrByBxnLocalOcrPost 执行图片OCR识别
+PostOcrByBxnLocalOcr 执行图片OCR识别
 
 上传图片并返回OCR识别结果
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return DefaultAPIV1OcrByBxnLocalOcrPostRequest
+ @return DefaultAPIPostOcrByBxnLocalOcrRequest
 */
-func (a *DefaultAPIService) V1OcrByBxnLocalOcrPost(ctx context.Context) DefaultAPIV1OcrByBxnLocalOcrPostRequest {
-	return DefaultAPIV1OcrByBxnLocalOcrPostRequest{
+func (a *DefaultAPIService) PostOcrByBxnLocalOcr(ctx context.Context) DefaultAPIPostOcrByBxnLocalOcrRequest {
+	return DefaultAPIPostOcrByBxnLocalOcrRequest{
 		ApiService: a,
 		ctx: ctx,
 	}
 }
 
 // Execute executes the request
-//  @return V1OcrByBxnLocalOcrPost200Response
-func (a *DefaultAPIService) V1OcrByBxnLocalOcrPostExecute(r DefaultAPIV1OcrByBxnLocalOcrPostRequest) (*V1OcrByBxnLocalOcrPost200Response, *http.Response, error) {
+//  @return PostOcrByBxnLocalOcr200Response
+func (a *DefaultAPIService) PostOcrByBxnLocalOcrExecute(r DefaultAPIPostOcrByBxnLocalOcrRequest) (*PostOcrByBxnLocalOcr200Response, *http.Response, error) {
 	var (
 		localVarHTTPMethod   = http.MethodPost
 		localVarPostBody     interface{}
 		formFiles            []formFile
-		localVarReturnValue  *V1OcrByBxnLocalOcrPost200Response
+		localVarReturnValue  *PostOcrByBxnLocalOcr200Response
 	)
 
-	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DefaultAPIService.V1OcrByBxnLocalOcrPost")
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "DefaultAPIService.PostOcrByBxnLocalOcr")
 	if err != nil {
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
@@ -134,7 +134,7 @@ func (a *DefaultAPIService) V1OcrByBxnLocalOcrPostExecute(r DefaultAPIV1OcrByBxn
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 400 {
-			var v V1OcrByBxnLocalOcrPost400Response
+			var v PostOcrByBxnLocalOcr400Response
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -145,7 +145,7 @@ func (a *DefaultAPIService) V1OcrByBxnLocalOcrPostExecute(r DefaultAPIV1OcrByBxn
 			return localVarReturnValue, localVarHTTPResponse, newErr
 		}
 		if localVarHTTPResponse.StatusCode == 500 {
-			var v V1OcrByBxnLocalOcrPost400Response
+			var v PostOcrByBxnLocalOcr400Response
 			err = a.client.decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
