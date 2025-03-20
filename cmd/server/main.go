@@ -8,7 +8,6 @@ import (
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/settings"
 	"github.com/straydragon/bookxnote-local-ocr/internal/common/utils"
 	"github.com/straydragon/bookxnote-local-ocr/internal/handlers"
-	"github.com/straydragon/bookxnote-local-ocr/internal/lib/umiocr"
 	"github.com/straydragon/bookxnote-local-ocr/internal/middleware"
 	"github.com/straydragon/bookxnote-local-ocr/internal/service"
 	_ "github.com/straydragon/bookxnote-local-ocr/internal/swagger-doc"
@@ -34,15 +33,11 @@ func main() {
 		}
 	}
 
-	// 加载配置
-	config, err := service.GetUserConfig()
-	if err != nil {
-		log.Printf("Failed to load config: %v, using default settings", err)
-	}
-
 	// 初始化服务
-	ocrClient := umiocr.NewClient(config.OCR.UmiOCR.APIURL)
-	svc := service.NewService(ocrClient)
+	svc, err := service.NewService()
+	if err != nil {
+		log.Fatalf("Failed to initialize service: %v", err)
+	}
 
 	// 设置gin
 	gin.SetMode(gin.DebugMode)

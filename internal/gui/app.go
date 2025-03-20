@@ -21,7 +21,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 
 	"github.com/straydragon/bookxnote-local-ocr/internal/cli"
-	"github.com/straydragon/bookxnote-local-ocr/internal/client/openapi"
+	"github.com/straydragon/bookxnote-local-ocr/internal/client/inner_server"
 )
 
 var serverStopChan = make(chan struct{}, 1)
@@ -128,19 +128,19 @@ func (g *GUIApp) setupUI() {
 	})
 	g.serverSwitch.SetChecked(g.serverProcess != nil)
 
-	installBtn := widget.NewButton(t("ui.installConfig"), func() {
-		go g.handleInstallConfig()
-	})
+	// installBtn := widget.NewButton(t("ui.installConfig"), func() {
+	// 	go g.handleInstallConfig()
+	// })
 
-	uninstallBtn := widget.NewButton(t("ui.uninstallConfig"), func() {
-		go g.handleUninstallConfig()
-	})
+	// uninstallBtn := widget.NewButton(t("ui.uninstallConfig"), func() {
+	// 	go g.handleUninstallConfig()
+	// })
 
 	content := container.NewVBox(
 		statusLabel,
 		g.serverSwitch,
-		installBtn,
-		uninstallBtn,
+		// installBtn,
+		// uninstallBtn,
 	)
 
 	g.window.SetContent(content)
@@ -511,14 +511,14 @@ func RunGUI(resourceIconPng fyne.Resource) error {
 }
 
 func (g *GUIApp) togglePostOCRFeature(configKey string) {
-	cfg := openapi.NewConfiguration()
+	cfg := inner_server.NewConfiguration()
 	cfg.HTTPClient = &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
 
-	client := openapi.NewAPIClient(cfg)
+	client := inner_server.NewAPIClient(cfg)
 
 	getResult, _, err := client.ConfigAPI.AppConfigGetGet(context.Background()).Key(configKey).Execute()
 	if err != nil {
@@ -531,7 +531,7 @@ func (g *GUIApp) togglePostOCRFeature(configKey string) {
 		currentValue = false
 	}
 
-	setReq := openapi.NewHandlersAppConfigSetReq(configKey, !currentValue)
+	setReq := inner_server.NewHandlersAppConfigSetReq(configKey, !currentValue)
 	_, _, err = client.ConfigAPI.AppConfigSetPost(context.Background()).HandlersAppConfigSetReq(*setReq).Execute()
 	if err != nil {
 		g.notifyUser(t("notify.title.error"), fmt.Sprintf(t("error.configUpdateFailed"), err))

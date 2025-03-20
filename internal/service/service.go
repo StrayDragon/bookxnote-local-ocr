@@ -2,42 +2,75 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"strings"
 
+	"github.com/straydragon/bookxnote-local-ocr/internal/lib/customocr"
+	"github.com/straydragon/bookxnote-local-ocr/internal/lib/ocr"
 	"github.com/straydragon/bookxnote-local-ocr/internal/lib/umiocr"
 )
 
+// OCRClient 定义OCR客户端接口
+type OCRClient interface {
+	Recognize(base64Image string) (*ocr.OCRResult, error)
+}
+
 // Service 包含所有服务依赖
 type Service struct {
-	UmiOCRClient     *umiocr.Client
+	ocrClient        OCRClient
 	configMgr        *ConfigManager
 	postOCRProcessor *PostOCRProcessor
 }
 
 // NewService 创建新的服务实例
-func NewService(ocrClient *umiocr.Client) *Service {
+func NewService() (*Service, error) {
 	configMgr, err := NewConfigManager()
 	if err != nil {
-		log.Printf("Failed to load config: %v, using default settings", err)
+		return nil, fmt.Errorf("failed to load config: %w", err)
 	}
 
 	config, err := configMgr.GetConfig()
 	if err != nil {
-		log.Printf("解析配置失败 > %v", err)
+		return nil, fmt.Errorf("failed to parse config: %w", err)
+	}
+
+	if config.OCR == nil {
+		return nil, fmt.Errorf("OCR configuration is missing")
+	}
+
+	var ocrClient OCRClient
+	switch config.OCR.Selected {
+	case "umiocr":
+		if config.OCR.UmiOCR == nil || config.OCR.UmiOCR.APIURL == "" {
+			return nil, fmt.Errorf("UmiOCR configuration is missing or invalid")
+		}
+		ocrClient = umiocr.NewClient(config.OCR.UmiOCR.APIURL)
+	case "custom":
+		baseUrl, key := config.OCR.Custom.APIBaseUrl, config.OCR.Custom.APIKey
+		if baseUrl == "" || key == "" {
+			return nil, fmt.Errorf("Custom OCR configuration is missing or invalid")
+		}
+
+		baseUrl = strings.TrimSuffix(baseUrl, "/")
+		ocrClient = customocr.NewClient(baseUrl, key)
+	default:
+		return nil, fmt.Errorf("unsupported OCR service: %s", config.OCR.Selected)
 	}
 
 	var postOCRProcessor *PostOCRProcessor
-	if config != nil && config.AfterOCR != nil && config.LLM != nil {
+	if config.AfterOCR != nil && config.LLM != nil {
 		postOCRProcessor, err = NewPostOCRProcessor()
 		if err != nil {
-			log.Printf("创建后处理处理器失败 > %v", err)
+			log.Printf("failed to create post-processor: %v", err)
 		}
 	}
+
 	return &Service{
-		UmiOCRClient:     ocrClient,
+		ocrClient:        ocrClient,
 		configMgr:        configMgr,
 		postOCRProcessor: postOCRProcessor,
-	}
+	}, nil
 }
 
 // GetConfigValue 获取配置值
@@ -51,9 +84,14 @@ func (s *Service) SetConfigValue(key string, value interface{}) error {
 }
 
 // ProcessOCRResult 处理OCR结果
-func (s *Service) ProcessOCRResult(ctx context.Context, ocrResult *umiocr.APIRecognizeResp) (*umiocr.APIRecognizeResp, error) {
+func (s *Service) ProcessOCRResult(ctx context.Context, ocrResult *ocr.OCRResult) (*ocr.OCRResult, error) {
 	if s.postOCRProcessor == nil {
 		return ocrResult, nil
 	}
 	return s.postOCRProcessor.ProcessOCRResult(ctx, ocrResult)
+}
+
+// Recognize 执行OCR识别
+func (s *Service) Recognize(base64Image string) (*ocr.OCRResult, error) {
+	return s.ocrClient.Recognize(base64Image)
 }
