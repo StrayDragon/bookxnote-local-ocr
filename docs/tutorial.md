@@ -120,6 +120,8 @@ ocr:
   # ...
 ```
 
+可以参考/使用这个项目提供的server示例 [StrayDragon/llm-ocr-server](https://github.com/StrayDragon/llm-ocr-server/tree/main/llm/got-ocr-2.0-cpu)
+
 # 卸载
 
 在解压后的目录中运行以下命令
